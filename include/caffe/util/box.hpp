@@ -93,6 +93,18 @@ box get_region_box(Dtype *x, Dtype *biases, int n, int index, int i, int j, int 
 }
 
 template <typename Dtype>
+box get_yolo_box(Dtype *x, vector<float>& biases, int n, int index, int i, int j, int w, int h, int nw, int nh)
+{
+    int stride = w * h;
+    box b;
+    b.x = (i + x[index + 0 * stride]) / w;
+    b.y = (j + x[index + 1 * stride]) / h;
+    b.w = exp(x[index + 2 * stride]) * biases[2*n]   / nw;
+    b.h = exp(x[index + 3 * stride]) * biases[2*n+1] / nh;
+    return b;
+}
+
+template <typename Dtype>
 float delta_region_box(box truth, Dtype *x, Dtype *biases, int n, int index, int i, int j, int w, int h, Dtype *delta, float scale, Dtype &coord_loss, Dtype &area_loss)
 {
     int stride = w * h;
@@ -117,6 +129,30 @@ float delta_region_box(box truth, Dtype *x, Dtype *biases, int n, int index, int
     return iou;
 }
 
+template <typename Dtype>
+float delta_yolo_box(box truth, Dtype *x, vector<float>& biases, int n, int index, int i, int j, int w, int h, int nw, int nh, Dtype *delta, float scale, Dtype &coord_loss, Dtype &area_loss)
+{
+    int stride = w * h;
+    box pred = get_yolo_box(x, biases, n, index, i, j, w, h, nw, nh);
+    float iou = box_iou(pred, truth);
+
+    Dtype tx = (truth.x*w - i);
+    Dtype ty = (truth.y*h - j);
+    Dtype tw = log(truth.w*nw / biases[2*n]);
+    Dtype th = log(truth.h*nh / biases[2*n + 1]);
+
+    delta[index + 0 * stride] = (-1) * scale * (tx - x[index + 0 * stride]);
+    delta[index + 1 * stride] = (-1) * scale * (ty - x[index + 1 * stride]);
+    delta[index + 2 * stride] = (-1) * scale * (tw - x[index + 2 * stride]);
+    delta[index + 3 * stride] = (-1) * scale * (th - x[index + 3 * stride]);
+
+//    std::cout<<"delta coord: "<<delta[index + 0]<<" "<<delta[index + 1]<<" "<<delta[index + 2]<<" "<<delta[index + 3]<<std::endl;
+
+    coord_loss += 1.0 * (pow((float)((tx - x[index + 0 * stride])), 2) + pow((float)((ty - x[index + 1 * stride])), 2));
+    area_loss += 1.0 * (pow((float)((tw - x[index + 2 * stride])), 2) + pow((float)((th - x[index + 3 * stride])), 2));
+    return iou;
+}
+
 
 template <typename Dtype>
 void delta_region_class(Dtype *output, Dtype *delta, int index, int class_ind, int classes, float scale, Dtype &avg_cat, Dtype &class_loss, int stride)
@@ -126,6 +162,26 @@ void delta_region_class(Dtype *output, Dtype *delta, int index, int class_ind, i
     for(n = 0; n < classes; ++n){
         delta[index + n * stride] = (-1) * scale * (((n == class_ind)?1 : 0) - output[index + n * stride]);
         class_loss += scale * pow((float)((((n == class_ind)?1 : 0) - output[index + n * stride])), 2);
+        if(n == class_ind) avg_cat += output[index + n * stride];
+
+    }
+    
+}
+
+template <typename Dtype>
+void delta_yolo_class(Dtype *output, Dtype *delta, int index, int class_ind, int classes, float scale, Dtype &avg_cat, Dtype &class_loss, int stride)
+{
+    int n;
+    /*
+    if(delta[index]) {
+        delta[index + stride*classes] = 1 - output[index + stride*classes];
+        avg_cat += output[index + stride*classes];
+        return;
+    }
+    */
+    for(n = 0; n < classes; ++n){
+        delta[index + n * stride] = (-1) * scale * (((n == class_ind)?1 : 0) - output[index + n * stride]);
+        class_loss += 1.0 * pow((float)((((n == class_ind)?1 : 0) - output[index + n * stride])), 2);
         if(n == class_ind) avg_cat += output[index + n * stride];
 
     }
@@ -183,6 +239,8 @@ void get_predict_boxes(int batch_ind, int side_w, int side_h, Dtype *biases, int
 }
 
 bool mycomp(vector<float> &a,vector<float> &b);
+
+int int_index(vector<int>& a, int val, int n);
 
 }
 

@@ -439,6 +439,9 @@ message LayerParameter {
 
   optional SmoothL1LossParameter smooth_l1_loss_param = 8266712;
   optional ResizeParameter resize_param = 300;
+
+  // Yolo region loss layer
+  optional YoloLossParameter yolo_loss_param = 205;
 }
 
 // Message that stores parameters used to apply transformation
@@ -1573,4 +1576,26 @@ message ResizeParameter {
   optional bool  is_pyramid_test = 3 [default = false];
   optional float out_height_scale = 4;
   optional float out_width_scale = 5;
+}
+message YoloLossParameter {
+  // Yolo region loss layer
+  optional uint32 num_class = 1 [default = 20];
+  optional uint32 num_object = 2 [default = 2];
+  optional uint32 num_coord = 3 [default = 4];
+
+  optional float object_scale = 4 [default = 1.0];
+  optional float noobject_scale = 5 [default = 0.5];
+  optional float class_scale = 6 [default = 1.0];
+  optional float coord_scale = 7 [default = 5.0];
+
+  repeated float anchor_x = 8;
+  repeated float anchor_y = 9;
+  repeated uint32 mask = 10;
+  optional bool anchor_mask = 11 [default = false];
+
+  optional float ignore_thresh = 12 [default = 0.5];
+  optional float truth_thresh = 13 [default = 1.0];
+
+  optional uint32 net_w = 14 [default = 224];
+  optional uint32 net_h = 15 [default = 224];
 }
