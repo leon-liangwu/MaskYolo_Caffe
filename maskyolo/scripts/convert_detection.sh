@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-CAFFE_ROOT=./
+CAFFE_ROOT=./caffe-maskyolo
 
 RESIZE_W=448
 RESIZE_H=448
