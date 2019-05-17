@@ -1,6 +1,6 @@
 #personal
-/train_wl
-/det_train
+train_wl
+det_train
 *.caffemodel
 
 
