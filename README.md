@@ -1,13 +1,5 @@
 # YOLO Caffe version with MaskRCNN
 
-### Reference
-
-> You Only Look Once: Unified, Real-Time Object detection http://arxiv.org/abs/1506.02640
-
-> YOLO9000: Better, Faster, Stronger https://arxiv.org/abs/1612.08242
-
-> YOLOv3: An Incremental Improvement https://pjreddie.com/media/files/papers/YOLOv3.pdf
-
 ### caffe-maskyolo
 1. What I add in this version of caffe?
 * detection lmdb, mask lmdb, keypoint lmdb prepare
@@ -55,3 +47,12 @@ comming soon
 ```
 3. examples of mask & keypoints on COCO
 ![](assets/mask_keypoints.png)
+
+### Reference
+
+> You Only Look Once: Unified, Real-Time Object detection http://arxiv.org/abs/1506.02640
+
+> YOLO9000: Better, Faster, Stronger https://arxiv.org/abs/1612.08242
+
+> YOLOv3: An Incremental Improvement https://pjreddie.com/media/files/papers/YOLOv3.pdf
+
