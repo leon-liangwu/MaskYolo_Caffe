@@ -15,7 +15,10 @@ make -j
 
 ### Object Detection with YOLO
 support to use yolo v2 or v3 to detect objects in images
-1. prepare lmdb for object detection 
+1. examples of detection on KITTI
+![](assets/detection1.png)
+
+2. prepare lmdb for object detection 
 ```
 cd ROOT
 sh ./maskyolo/scripts/convert_detection.sh  #generate lmdb for detection
@@ -23,28 +26,27 @@ cd ./maskyolo/models/mobilenetv2-yolo/
 nohup sh yolo_train.sh > train.log &
 ```
 
-2. objection demo
+3. objection demo
 ```
 comming soon
 ```
-3. examples of detection on KITTI
-![](assets/detection1.png)
 
 
 ### Instance mask and Keypoint recognization with MaskRCNN combined YOLO
 
 Use yolo results as input to feed to `roi_ppooing` or `roi_alignment` layer 
-1. prepare lmdb for mask regression
+1. examples of mask & keypoints on COCO
+![](assets/mask_keypoints.png)
+
+2. prepare lmdb for mask regression
 ```
 coming soon
 ```
 
-2. yolo with mask demo
+3. yolo with mask demo
 ```
 comming soon
 ```
-3. examples of mask & keypoints on COCO
-![](assets/mask_keypoints.png)
 
 ### Reference
 
