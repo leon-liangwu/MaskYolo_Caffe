@@ -19,7 +19,16 @@
 support to use yolo v2 or v3 to detect objects in images
 1. prepare lmdb for object detection 
 ```
-sh ./data/yolo/convert_detection.sh
+cd ROOT
+sh ./data/yolo/convert_detection.sh  #generate lmdb for detection
+cd ./maskyolo/models/mobilenetv2-yolo/
+nohup sh yolo_train.sh > train.log &
+
+```
+
+2. objection demo
+```
+tbd
 ```
 
 

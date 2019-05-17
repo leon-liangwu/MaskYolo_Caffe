@@ -1,0 +1,22 @@
+net: "./Mobilenet_V2-T4-dw.prototxt"
+test_initialization: false
+display: 20
+average_loss: 100
+lr_policy: "multifixed"
+
+stagelr: 0.00001
+stagelr: 0.0005
+stagelr: 0.001
+stagelr: 0.0001
+stagelr: 0.00001
+
+stageiter: 100
+stageiter: 1000
+stageiter: 1800
+stageiter: 2400
+max_iter: 3000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 5000
+snapshot_prefix: "/path/to/models/mb-v2-T4-384"
+solver_mode: GPU
