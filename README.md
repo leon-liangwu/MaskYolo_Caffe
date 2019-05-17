@@ -54,5 +54,4 @@ coming soon
 comming soon
 ```
 3. examples of mask & keypoints on COCO
-![](assets/mask1.png)![](assets/mask2.png)
-![](assets/keypoint1.png)![](assets/keypoint2.png)
+![](assets/mask_keypoints.png.png)
