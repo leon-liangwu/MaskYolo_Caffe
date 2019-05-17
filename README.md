@@ -35,4 +35,12 @@ tbd
 ### Instance mask and Keypoint recognization with MaskRCNN combined YOLO
 
 Use yolo results as input to feed to `roi_ppooing` or `roi_alignment` layer 
+1. prepare lmdb for mask regression
+```
+xxx
+```
 
+2. yolo with mask demo
+```
+xxx
+```
