@@ -8,29 +8,36 @@
 
 > YOLOv3: An Incremental Improvement https://pjreddie.com/media/files/papers/YOLOv3.pdf
 
-### Data preparation
-* Prepare data lsit just like the way of original darkenet
-
-* Use train.txt to generate lmdb for training
+### caffe-maskyolo
+1. What I add in this version of caffe?
+* detection lmdb, mask lmdb, keypoint lmdb prepare
 
 * yolo v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
+
+* yolo combined with maskrcnn 
+
+2. Compile it
+```
+cd caffe-maskyolo
+cp Makefile.config.example Makefile.config
+make -j
+```
 
 ### Object Detection with YOLO
 support to use yolo v2 or v3 to detect objects in images
 1. prepare lmdb for object detection 
 ```
 cd ROOT
-sh ./data/yolo/convert_detection.sh  #generate lmdb for detection
+sh ./maskyolo/scripts/convert_detection.sh  #generate lmdb for detection
 cd ./maskyolo/models/mobilenetv2-yolo/
 nohup sh yolo_train.sh > train.log &
-
 ```
 
 2. objection demo
 ```
-tbd
+comming soon
 ```
-examples of detection on KITTI
+3. examples of detection on KITTI
 ![](assets/detection1.png)
 
 
@@ -39,10 +46,15 @@ examples of detection on KITTI
 Use yolo results as input to feed to `roi_ppooing` or `roi_alignment` layer 
 1. prepare lmdb for mask regression
 ```
-xxx
+coming soon
 ```
 
 2. yolo with mask demo
 ```
-xxx
+comming soon
 ```
+3. examples of mask & keypoints on COCO
+![](assets/mask1.png)
+![](assets/mask2.png)
+![](assets/keypoint1.png)
+![](assets/keypoint2.png)
