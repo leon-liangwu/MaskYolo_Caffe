@@ -30,6 +30,8 @@ nohup sh yolo_train.sh > train.log &
 ```
 tbd
 ```
+examples of detection on KITTI
+![](assets/detection1.png)
 
 
 ### Instance mask and Keypoint recognization with MaskRCNN combined YOLO
