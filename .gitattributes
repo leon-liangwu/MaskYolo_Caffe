@@ -1,1 +1,4 @@
 *.md linguist-language=cpp
+*.ipynb linguist-language=cpp
+*.prototxt linguist-language=cpp
+*.txt linguist-language=cpp
