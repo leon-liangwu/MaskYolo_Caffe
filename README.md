@@ -24,6 +24,7 @@ cd ROOT
 sh ./maskyolo/scripts/convert_detection.sh  #generate lmdb for detection
 cd ./maskyolo/models/mobilenetv2-yolo/
 nohup sh yolo_train.sh > train.log &
+tail -f train.log
 ```
 
 3. objection demo
