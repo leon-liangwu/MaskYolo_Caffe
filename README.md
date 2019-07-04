@@ -2,10 +2,10 @@
 
 ### caffe-maskyolo
 1. What I add in this version of caffe?
-  * detection lmdb, mask lmdb, keypoint lmdb prepare
-  * yolo v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
-  * yolo combined with maskrcnn 
-
+- [x] detection lmdb, mask lmdb, keypoint lmdb prepare
+- [x] yolo v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
+- [x] Instance Mask segmentation with Yolo
+- [x] Pose Recognition with yolo
 2. Compile it
 ```
 cd caffe-maskyolo
