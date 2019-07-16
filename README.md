@@ -1,12 +1,14 @@
 # YOLO Caffe version with MaskRCNN
 
-### caffe-maskyolo
-1. What I add in this version of caffe?
+### Caffe-MaskYolo
+
+#### What I add in this version of caffe?
 - [x] detection lmdb, mask lmdb, keypoint lmdb prepare
 - [x] yolo v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
 - [x] Instance Mask segmentation with Yolo
 - [x] Pose Recognition with yolo
-2. Compile it
+
+#### Compile it
 ```
 cd caffe-maskyolo
 cp Makefile.config.example Makefile.config
@@ -15,10 +17,10 @@ make -j
 
 ### Object Detection with YOLO
 support to use yolo v2 or v3 to detect objects in images
-1. examples of detection on KITTI
+#### examples of detection on KITTI
 ![](assets/detection1.png)
 
-2. prepare lmdb for object detection 
+#### prepare lmdb for object detection 
 ```
 cd ROOT
 sh ./maskyolo/scripts/convert_detection.sh  #generate lmdb for detection
@@ -27,7 +29,7 @@ nohup sh yolo_train.sh > train.log &
 tail -f train.log
 ```
 
-3. objection demo
+#### objection demo
 ```
 comming soon
 ```
@@ -36,15 +38,15 @@ comming soon
 ### Instance mask and Keypoint recognization with MaskRCNN combined YOLO
 
 Use yolo results as input to feed to `roi_ppooing` or `roi_alignment` layer 
-1. examples of mask & keypoints on COCO
+#### examples of mask & keypoints on COCO
 ![](assets/mask_keypoints.png)
 
-2. prepare lmdb for mask regression
+#### prepare lmdb for mask regression
 ```
 coming soon
 ```
 
-3. yolo with mask demo
+#### yolo with mask demo
 ```
 comming soon
 ```
