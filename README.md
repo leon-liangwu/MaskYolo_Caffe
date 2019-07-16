@@ -37,7 +37,7 @@ comming soon
 
 ### Instance mask and Keypoint recognization with MaskRCNN combined YOLO
 
-Use yolo results as input to feed to `roi_ppooing` or `roi_alignment` layer 
+Use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer 
 #### examples of mask & keypoints on COCO
 ![](assets/mask_keypoints.png)
 
