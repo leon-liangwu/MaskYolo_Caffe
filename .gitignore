@@ -1,6 +1,4 @@
 #personal
-train_wl
-det_train
 *.caffemodel
 /maskyolo/models
 
