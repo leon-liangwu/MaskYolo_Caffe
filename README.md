@@ -13,7 +13,12 @@
 # install requirements
 cd ROOT_MaskYolo
 pip install -r requirements.txt
-# compare caffe
+
+# compile nms
+cd lib
+make -j 
+
+# compile caffe
 cd caffe-maskyolo
 cp Makefile.config.example Makefile.config
 make -j
@@ -36,8 +41,8 @@ tail -f train.log
 
 #### objection demo
 ```
-cd maskyolo
-python demos/yolo_inference.py --model=./models/ --weights=./models
+cd tools
+python yolo_inference.py --model=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt --weights=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel
 ```
 
 
