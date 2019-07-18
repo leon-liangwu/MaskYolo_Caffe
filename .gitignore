@@ -1,6 +1,7 @@
 #personal
 *.caffemodel
 /models
+/maskyolo
 
 
 ## General
