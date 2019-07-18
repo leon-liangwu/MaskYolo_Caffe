@@ -8,11 +8,16 @@
 - [x] Instance Mask segmentation with Yolo
 - [x] Pose Recognition with yolo
 
-#### Compile it
+#### preparation
 ```
+# install requirements
+cd ROOT_MaskYolo
+pip install -r requirements.txt
+# compare caffe
 cd caffe-maskyolo
 cp Makefile.config.example Makefile.config
 make -j
+make pycaffe
 ```
 
 ### Object Detection with YOLO
@@ -31,7 +36,8 @@ tail -f train.log
 
 #### objection demo
 ```
-will comming soon
+cd maskyolo
+python demos/yolo_inference.py --model=./models/ --weights=./models
 ```
 
 

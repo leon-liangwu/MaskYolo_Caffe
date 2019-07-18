@@ -1,0 +1,4 @@
+numpy
+numba==0.39.0
+opencv-python
+fire
