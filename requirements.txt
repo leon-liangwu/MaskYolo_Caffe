@@ -1,0 +1,8 @@
+protobuf
+numpy
+numba==0.39.0
+opencv-python
+networkx==2.0
+scikit-image
+cythons
+fire

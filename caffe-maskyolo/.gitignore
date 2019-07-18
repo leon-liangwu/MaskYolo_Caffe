@@ -1,7 +1,8 @@
 #personal
+train_wl
+det_train
 *.caffemodel
-/models
-/maskyolo
+/maskyolo/models
 
 
 ## General
