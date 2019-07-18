@@ -31,7 +31,7 @@ tail -f train.log
 
 #### objection demo
 ```
-comming soon
+will comming soon
 ```
 
 
