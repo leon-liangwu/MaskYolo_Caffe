@@ -10,13 +10,16 @@
 
 #### preparation
 ```
+# clone
+git clone https://github.com/leon-liangwu/MaskYolo_Caffe.git --recursive
+
 # install requirements
 cd ROOT_MaskYolo
 pip install -r requirements.txt
 
-# compile nms
-cd lib
-make -j 
+# compile box_utils
+cd lib/box_utils
+python setup.py build_ext --inplace
 
 # compile caffe
 cd caffe-maskyolo
