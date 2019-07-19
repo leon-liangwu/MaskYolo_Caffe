@@ -83,27 +83,28 @@ def nms_kernal(keep, sort_ind, riou, nms_thresh):
     num = len(sort_ind)
     for i in range(num):
         ind_i = sort_ind[i]
-        if keep[ind_i] == 0:
+        if keep[ind_i] == False:
             continue
         for j in range(i+1, num):
             ind_j = sort_ind[j]
-            if keep[ind_j] == 0:
+            if keep[ind_j] == False:
                 continue
 
             iou = riou[ind_i, ind_j]
             if iou > nms_thresh:
-                keep[ind_j] = 0
+                keep[ind_j] = False
 
 def nms_gpu_rotated(boxes, nms_thresh):
     prob_np = boxes[:, 4]
     sort_ind = prob_np.argsort()[::-1]
     boxes1 = np.zeros((boxes.shape[0], 5), dtype=np.float32)
     boxes1[:, :4] = boxes[:, :4]
-    boxes2 = np.zeros((boxes.shape[0], 5), dtype=np.float32)
-    boxes2[:, :4] = boxes[:, :4]
+    boxes1 *= 1000
+    boxes2 = boxes1.copy()
 
     iou = rbbx_overlaps(boxes1, boxes2)
     keep = np.ones(len(sort_ind), dtype=np.int32)
+    keep = (keep == 1)
     nms_kernal(keep, sort_ind, iou, nms_thresh)
 
     return boxes[keep]
