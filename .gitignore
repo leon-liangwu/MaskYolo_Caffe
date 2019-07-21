@@ -2,6 +2,7 @@
 *.caffemodel
 /models
 /maskyolo
+/tool/*.png
 *.tgz
 
 

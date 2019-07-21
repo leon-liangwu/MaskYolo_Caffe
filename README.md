@@ -54,6 +54,7 @@ tail -f train.log
 ```
 cd tools
 python yolo_inference.py --model=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt --weights=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel
+# Net forward time consumed: 3.96ms
 ```
 
 

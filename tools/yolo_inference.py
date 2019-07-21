@@ -1,6 +1,5 @@
 #coding=utf-8
 import _init_paths
-import datetime
 import time
 import cv2
 import numpy as np
@@ -21,11 +20,11 @@ classes = ["person", "car", "bus", "bicycle", "motorbike"]
 nms_thresh = 0.4
 box_num = 5
 use_fpn = 1
-box_thresh = 0.4
+box_thresh = 0.6
 cls_num = len(classes)
 
-(input_w, input_h) = input_size = (304, 224)
-(out_w, out_h) = output_size = (19, 14)
+(input_w, input_h) = input_size = (672, 224)
+(out_w, out_h) = output_size = (input_w/16, input_h/16)
 biases = [8.00, 10.27, 15.51, 26.77, 35.73, 44.89, 59.50, 103.39, 160.69, 162.92]
 biases = np.array(biases, dtype=np.float32)
 if use_fpn == 1:
@@ -62,24 +61,24 @@ def run(model, weights):
 
     net.blobs['data'].data[...] = img 
 
-    t1 = datetime.datetime.now()
+    t1 = time.time()
     out = net.forward()
-    t2 = datetime.datetime.now()
-    total_time += 1.0 * (t2 - t1).microseconds / 1000
+    t2 = time.time()
+    total_time = t2 - t1
+    print("Net forward time consumed: %.2fms" % (total_time * 100))
+    
 
     pred_val = net.blobs['conv_out'].data[0]
     pred_val = pred_val.transpose((1,2,0))
 
     boxes = decode_boxes(pred_val.copy(), anchors, cls_num, nms_thresh, box_thresh)
     boxes = nms_gpu_rotated(boxes, nms_thresh)
-    draw_boxes(img_org, boxes)
+    draw_boxes(img_org, boxes, classes)
 
-    # for test_cls in range(len(classes)):
-    #     boxes = get_box_and_nms(pred_val, img_org, box_thresh, box_num, cls_num, biases, test_cls, nms_thresh)
-    #     boxes = convert_boxes(img_org, boxes, box_thresh)
-
-    cv2.imshow('Oto Video', img_org) #显示
+    cv2.imshow('yolo detection', img_org) #显示
     cv2.waitKey(0) #延迟
+    cv2.imwrite("detection1.png", img_org)
+    print("Result saved!")
 
 if __name__ == '__main__':
     fire.Fire(run)
