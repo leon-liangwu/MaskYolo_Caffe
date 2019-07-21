@@ -1,5 +1,5 @@
 #coding=utf-8
-import _init_paths
+import os
 import time
 import cv2
 import numpy as np
@@ -7,6 +7,7 @@ import sys
 import math
 import fire
 
+import _init_paths
 from box_utils.rbbox_overlaps import rbbx_overlaps
 from utils import generate_anchors, decode_boxes, draw_boxes, nms_gpu_rotated
 
@@ -30,21 +31,18 @@ biases = np.array(biases, dtype=np.float32)
 if use_fpn == 1:
     biases = 1.0 * biases  * out_w / input_w
 
-
 box_num = len(biases) / 2
-deploy = "../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt" 
-caffe_model = "../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel"
 
 anchors = generate_anchors(output_size, box_num, biases)
 
-def run(model, weights):
-    net = caffe.Net(model,weights,caffe.TEST) 
+def_img_path = '../assets/000000.png'
+def_model = '../models/mb_v2_t4_cls5_yolo/mb_v2_t4_cls5_deploy.prototxt'
+def_weights = '../models/mb_v2_t4_cls5_yolo/mb_v2_t4_cls5.caffemodel'
 
-    total_time = 0
-    count = 0
+def run(img_path=def_img_path, model=def_model, weights=def_weights):
+    net = caffe.Net(model, weights, caffe.TEST) 
 
-    count = count + 1
-    img = cv2.imread('../assets/000000.png')
+    img = cv2.imread(img_path)
     (height, width, channel) = img.shape
 
     img_org = img.copy()
@@ -73,12 +71,18 @@ def run(model, weights):
 
     boxes = decode_boxes(pred_val.copy(), anchors, cls_num, nms_thresh, box_thresh)
     boxes = nms_gpu_rotated(boxes, nms_thresh)
-    draw_boxes(img_org, boxes, classes)
 
-    cv2.imshow('yolo detection', img_org) #显示
+    img_res = img_org.copy()
+    draw_boxes(img_res, boxes, classes)
+
+    cv2.imshow('yolo detection', img_res) #显示
     cv2.waitKey(0) #延迟
-    cv2.imwrite("detection1.png", img_org)
-    print("Result saved!")
+
+    img_dir, img_name = os.path.split(img_path)
+    save_name = img_name.replace('.', '_det.')
+    save_path = 'results/'+save_name
+    cv2.imwrite('results/'+save_name, img_res)
+    print("Result saved in %s!" % save_path)
 
 if __name__ == '__main__':
     fire.Fire(run)

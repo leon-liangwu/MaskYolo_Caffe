@@ -126,3 +126,88 @@ def nms_gpu_rotated(boxes, nms_thresh):
 
 
 
+
+# mask utils
+color_set = []
+color_set.append([0,0,205])
+color_set.append([34,139,34])
+color_set.append([192,192,128])
+color_set.append([165,42,42])
+color_set.append([128,64,128])
+color_set.append([204,102,0])
+color_set.append([184,134,11])
+color_set.append([0,153,153])
+color_set.append([0,134,141])
+color_set.append([184,0,141])
+color_set.append([184,134,0])
+color_set.append([184,134,223])
+
+
+def draw_rois(img, rois, roi_labels, net_w, net_h):
+    (h, w, c) = img.shape
+    (num, _) = rois.shape
+    for i in range(num):
+        if roi_labels[i] == 1:
+            bbox = rois[i, 1:]
+            #print bbox
+            (left, top, right, bottom) = (int(bbox[0] / net_w * w), int(bbox[1] / net_h * h), int(bbox[2] / net_w * w), int(bbox[3] / net_h * h))
+            #  print (left, top, right, bottom)
+            cv2.rectangle(img, (left, top), (right, bottom), (255, 0, 0), 2)
+
+def draw_mask(mask_prob, roi_labels):
+    (num, cls, w, h) = mask_prob.shape
+    for i in range(num):
+        if roi_labels[i] == 1:
+            mask_img = np.zeros((h, w, 1), np.uint8)
+            mask_bool = mask_prob[i,0, :] < mask_prob[i, 1, :]
+            mask_uint = mask_bool.astype(np.uint8)
+            mask_img = mask_uint * 255
+
+            cv2.imshow('mask', mask_img)
+            cv2.waitKey(0)
+
+def resize_mask(mask, size):
+    (dst_h, dst_w) = size
+    (m_h, m_w, m_c) = mask.shape
+    mk_resize = np.zeros((dst_h, dst_w, m_c), np.uint8)
+    (img_h, img_w, img_c) = mask.shape
+    for r in range(dst_h):
+        for c in range(dst_w):
+            (o_r, o_c) = (int(1.0 * img_h / dst_h * r), int(1.0 * img_w / dst_w * c))
+            for i in range(m_c):
+                mk_resize[r, c, i] = mask[o_r, o_c, i]
+
+    return mk_resize
+
+def draw_mask_on_roi(img, bbox, mask_img, mask_uint):
+    (m_h, m_w, m_c) = mask_img.shape
+    (left, top, right, bottom) = (bbox[0], bbox[1], bbox[2], bbox[3])
+    bbox_w = right - left
+    bbox_h = bottom - top
+    mask_resized = mask_img
+    alpha = 0.3
+
+    mask_rev = (np.ones(mask_resized.shape, np.uint8) - np.stack((mask_uint, mask_uint, mask_uint), axis=2)).astype(np.uint8)
+    img[top: bottom, left:right, :] = img[top: bottom, left:right, :]* alpha + (img[top: bottom, left:right, :] * mask_rev + mask_resized) * ( 1- alpha)
+
+
+def drraw_rois_masks(img, rois, mask_prob, roi_labels, net_w, net_h):
+    (h, w, c) = img.shape
+    (num, _) = rois.shape
+    (num, cls, m_w, m_h) = mask_prob.shape
+    for i in range(num):
+        if roi_labels[i] == 1:
+            bbox = rois[i, 1:]
+            (left, top, right, bottom) = (int(bbox[0] / net_w * w), int(bbox[1] / net_h * h), int(bbox[2] / net_w * w), int(bbox[3] / net_h * h))
+
+            mask_img = np.zeros(( bottom - top, right - left, 3), np.uint8)
+            mask_bool = (mask_prob[i, 1, :] * 225).astype(np.uint8)
+            mask_bool = cv2.resize(mask_bool, (right - left, bottom - top))
+            mask_bool = mask_bool[:] > (255 * 0.5)
+            mask_uint = mask_bool.astype(np.uint8)
+
+
+            mask_img[:, :, 0] = mask_uint * color_set[i%12][0]
+            mask_img[:, :, 1] = mask_uint * color_set[i%12][1]
+            mask_img[:, :, 2] = mask_uint * color_set[i%12][2]
+            draw_mask_on_roi(img, (left, top, right, bottom), mask_img, mask_uint)
