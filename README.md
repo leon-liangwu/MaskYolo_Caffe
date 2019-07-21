@@ -42,7 +42,7 @@ support to use yolo v2 or v3 to detect objects in images
 #### objection demo
 ```
 cd tools
-python yolo_inference.py --model=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt --weights=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel
+python yolo_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel]
 # Net forward time consumed: 3.96ms
 ```
 The demo result is shown below.
@@ -60,9 +60,11 @@ tail -f train.log
 
 ### Instance Mask and Keypoints
 
-#### yolo with mask demo
+#### instance mask and keypoints demo
 ```
-comming soon
+cd tools
+python mask_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
+# Net forward time consumed: 8.67ms
 ```
 
 Some resulting samples are show below. I use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer.
