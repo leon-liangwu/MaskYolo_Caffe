@@ -21,7 +21,7 @@ IMAGE_SIZE = (384, 272)
 sks = np.fromfile('../assets/sks.dat', dtype=np.int64).reshape(-1, 2)
 
 
-def_img_path = '../assets/000000401862.jpg'
+def_img_path = '../assets/000000069213.jpg'
 def_model = '../models/mb_body_keypoints/mb_body_keypoints_deploy.prototxt'
 def_weights = '../models/mb_body_keypoints/mb_body_keypoints.caffemodel'
 
