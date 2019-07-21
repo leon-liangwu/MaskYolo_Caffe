@@ -1,4 +1,0 @@
-[submodule "lib/box_utils"]
-    ignore = dirty
-    path = lib/box_utils
-    url = https://github.com/leon-liangwu/box_utils.git

@@ -28,6 +28,14 @@ make -j
 make pycaffe
 ```
 
+#### download pretrained models
+Click [here](https://www.dropbox.com/s/z1w2z8ya28v3lah/models.tgz?dl=0 "pretrained models") to download pretrained models
+```
+cd ROOT_MaskYolo
+tar zxvf /your/downlaod/model/path/models.tgz ./
+```
+
+
 ### Object Detection with YOLO
 support to use yolo v2 or v3 to detect objects in images
 #### examples of detection on KITTI
@@ -46,6 +54,7 @@ tail -f train.log
 ```
 cd tools
 python yolo_inference.py --model=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt --weights=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel
+# Net forward time consumed: 3.96ms
 ```
 
 

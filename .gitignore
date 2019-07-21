@@ -2,6 +2,8 @@
 *.caffemodel
 /models
 /maskyolo
+/tools/*.png
+*.tgz
 
 
 ## General

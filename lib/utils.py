@@ -31,7 +31,7 @@ def softmax(x):
     x = x / sum_x
     return x
 
-def draw_boxes(img, boxes):
+def draw_boxes(img, boxes, class_names):
     img_h, img_w, img_c = img.shape
     map_box = []
 
@@ -45,6 +45,21 @@ def draw_boxes(img, boxes):
 
         cv2.rectangle(img, (left, top), (right, bottom), (255,0,0),2) 
         map_box.append([box[4], left, top, right, bottom])
+
+        # draw bar 
+        right = max(right, left + 88)
+        bar_size = 16
+        points = ((left, top), (right, top), (right, top-bar_size), (left, top-bar_size))
+        points = np.array(points)
+        cv2.fillPoly(img, [points], (0, 0, 255))
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cls_id = int(box[5])
+        cls_name = class_names[cls_id]
+        prob = box[4]
+        text = '%s: %.3f' % (cls_name, prob)
+        cv2.putText(img, text, (left, top-4), font, 0.38, (255, 255, 255))
+
     return map_box
 
 def decode_boxes(pred_val, anchors, cls_num, nms_thresh, box_thresh):
@@ -68,13 +83,13 @@ def decode_boxes(pred_val, anchors, cls_num, nms_thresh, box_thresh):
     pred_items[..., 5:] = softmax(pred_items[..., 5:])
     max_prob = np.max(pred_items[..., 5:])
 
-    reg_list = np.zeros((pred_items.shape[0], 7))
+    reg_list = np.zeros((pred_items.shape[0], 6))
     reg_list[..., 0] = (annc_items[..., 0] + pred_items[..., 0]) / out_w
     reg_list[..., 1] = (annc_items[..., 1] + pred_items[..., 1]) / out_h
     reg_list[..., 2] = (annc_items[..., 2] * pred_items[..., 2]) / out_w
     reg_list[..., 3] = (annc_items[..., 3] * pred_items[..., 3]) / out_h
     reg_list[..., 4] = pred_items[..., 4]
-    reg_list[..., 5] = np.max(pred_items[..., 5:])
+    reg_list[..., 5] = np.argmax(pred_items[..., 5:], axis=-1)
 
     return reg_list
 
