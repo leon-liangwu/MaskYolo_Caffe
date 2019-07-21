@@ -65,6 +65,9 @@ tail -f train.log
 cd tools
 python mask_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
 # Net forward time consumed: 8.67ms
+
+python kps_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
+# Net forward time consumed: 5.58ms
 ```
 
 Some resulting samples are show below. I use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer.

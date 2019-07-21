@@ -211,3 +211,46 @@ def drraw_rois_masks(img, rois, mask_prob, roi_labels, net_w, net_h):
             mask_img[:, :, 1] = mask_uint * color_set[i%12][1]
             mask_img[:, :, 2] = mask_uint * color_set[i%12][2]
             draw_mask_on_roi(img, (left, top, right, bottom), mask_img, mask_uint)
+
+
+# kps utils
+def draw_rois_kps(img, rois, kps_prob, roi_labels, net_w, net_h, sks):
+    (img_h, img_w, img_c) = img.shape
+    (num, _) = rois.shape
+    (num, cls, m_w, m_h) = kps_prob.shape
+
+    for i in range(num):
+        if roi_labels[i] == 1:
+            bbox = rois[i, 1:]
+
+            (left, top, right, bottom) = (int(bbox[0] / net_w * img_w), int(bbox[1] / net_h * img_h), int(bbox[2] / net_w * img_w), int(bbox[3] / net_h * img_h))
+            head_map = kps_prob[i, 17, :, :] * 255
+            head_map[head_map>255] = 255
+            head_map[head_map<  0] = 0
+            head_map = head_map.astype(np.uint8)
+            head_map = cv2.resize(head_map, (right-left, bottom-top))
+            bests = []
+            keyps = np.zeros((17, 2), dtype=np.uint32)
+            for p in range(cls-1):
+                bests.append((0, 0, 0))
+            for c in range(cls-1):
+                for w in range(m_w):
+                    for h in range(m_h):
+                        if kps_prob[i, c, h, w] > bests[c][2]:
+                            bests[c] = (w, h, kps_prob[i, c, h, w])
+
+
+                (best_w, best_h, best_p) = bests[c]
+                if best_p > kps_prob[i, 17, best_h, best_w]:
+                    y = int(1.0 * best_h * (bottom - top) / m_h + top)
+                    x = int(1.0 * best_w * (right - left) / m_w + left)
+                    keyps[c, 0] = x
+                    keyps[c, 1] = y
+                    #cv2.circle(img, (x, y), 3, (255, 255, 255), 3)
+
+
+            for k in range(sks.shape[0]):
+                if keyps[sks[k, 0], 0] != 0 and keyps[sks[k, 0], 1] != 0 \
+                        and keyps[sks[k, 1], 0] != 0 and keyps[sks[k, 1], 1] != 0:
+                    cv2.line(img, (keyps[sks[k, 0], 0], keyps[sks[k, 0], 1]), \
+                        (keyps[sks[k, 1], 0], keyps[sks[k, 1], 1]), (255, 255, 255), 2)
