@@ -47,6 +47,7 @@ def draw_boxes(img, boxes, class_names):
         map_box.append([box[4], left, top, right, bottom])
 
         # draw bar 
+        right = max(right, left + 88)
         bar_size = 16
         points = ((left, top), (right, top), (right, top-bar_size), (left, top-bar_size))
         points = np.array(points)
