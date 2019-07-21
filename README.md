@@ -38,10 +38,18 @@ tar zxvf /your/downlaod/model/path/models.tgz ./
 
 ### Object Detection with YOLO
 support to use yolo v2 or v3 to detect objects in images
-#### examples of detection on KITTI
+
+#### objection demo
+```
+cd tools
+python yolo_inference.py --model=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt --weights=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel
+# Net forward time consumed: 3.96ms
+```
+The demo result is shown below.
+
 ![](assets/detection1.png)
 
-#### prepare lmdb for object detection 
+#### train for object detection 
 ```
 cd ROOT_MaskYolo
 sh ./scripts/convert_detection.sh  #generate lmdb for detection
@@ -50,18 +58,15 @@ nohup sh yolo_train.sh > train.log &
 tail -f train.log
 ```
 
-#### objection demo
+### Instance Mask and Keypoints
+
+#### yolo with mask demo
 ```
-cd tools
-python yolo_inference.py --model=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.prototxt --weights=../models/mb-v2-t4-cls5-yolo/mb-v2-t4-cls5.caffemodel
-# Net forward time consumed: 3.96ms
+comming soon
 ```
 
+Some resulting samples are show below. I use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer.
 
-### Instance mask and Keypoint recognization with MaskRCNN combined YOLO
-
-Use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer 
-#### examples of mask & keypoints on COCO
 ![](assets/mask_keypoints.png)
 
 #### prepare lmdb for mask regression
@@ -69,10 +74,7 @@ Use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer
 coming soon
 ```
 
-#### yolo with mask demo
-```
-comming soon
-```
+
 
 ### Reference
 
