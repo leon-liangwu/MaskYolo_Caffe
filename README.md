@@ -3,10 +3,11 @@
 ### Caffe-MaskYolo
 
 #### What I add in this version of caffe?
-- [x] detection lmdb, mask lmdb, keypoint lmdb prepare
-- [x] yolo v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
+- [x] Demos for object detection, mask segmentation and keypoints recognition
+- [x] YOLO v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
 - [x] Instance Mask segmentation with Yolo
-- [x] Pose Recognition with yolo
+- [x] Keypoints Recognition with yolo
+- [ ] training data preparation and training
 
 #### preparation
 ```
@@ -70,7 +71,8 @@ python kps_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=x
 # Net forward time consumed: 5.58ms
 ```
 
-Some resulting samples are show below. I use yolo results as input to feed to `roi_pooing` or `roi_alignment` layer.
+some resulting samples are show below. 
+I just feed yolo results to `roi_pooing` or `roi_alignment` layer.
 
 ![](assets/mask_keypoints.png)
 
