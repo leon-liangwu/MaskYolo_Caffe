@@ -4,7 +4,7 @@
 /maskyolo
 /tools/results
 *.tgz
-
+*.log
 
 ## General
 

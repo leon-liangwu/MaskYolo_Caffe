@@ -53,10 +53,16 @@ The demo result is shown below.
 #### train for object detection 
 ```
 cd ROOT_MaskYolo
-sh ./scripts/convert_detection.sh  #generate lmdb for detection
-cd ./models/mobilenetv2-yolo/
-nohup sh yolo_train.sh > train.log &
-tail -f train.log
+
+# prepare voc labels, set the categories you want to detect in scripts/voc_label.py
+python scripts/voc_label.py --voc_dir=/path/to/voc_dir/
+
+# generate lmdb for detection
+sh ./scripts/convert_detection.sh  /path/to/train.txt /path/to/lmdb   
+
+# train the detection model
+cd ./models/mb_v2_t4_cls5_yolo/
+sh yolo_train.sh
 ```
 
 ### Instance Mask and Keypoints
