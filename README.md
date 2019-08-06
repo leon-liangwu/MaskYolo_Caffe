@@ -7,7 +7,7 @@
 - [x] YOLO v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
 - [x] Instance Mask segmentation with Yolo
 - [x] Keypoints Recognition with yolo
-- [ ] training data preparation and training
+- [x] training data preparation and training
 
 #### preparation
 ```
@@ -62,7 +62,7 @@ sh ./scripts/convert_detection.sh  /path/to/train.txt /path/to/lmdb
 
 # train the detection model
 cd ./models/mb_v2_t4_cls5_yolo/
-sh yolo_train.sh
+sh train_yolo.sh
 ```
 
 ### Instance Mask and Keypoints
@@ -84,7 +84,20 @@ I just feed yolo results to `roi_pooing` or `roi_alignment` layer.
 
 #### prepare lmdb for mask regression
 ```
-coming soon
+cd ROOT_MaskYolo
+
+# use the following command to generate lmdb which contains mask and keypoints information
+python scripts/createdata_mask_kps.py --coco_dir=/path/to/coco --lmdb_dir=/path/to/lmdb
+
+# the training for mask consists of 2 steps 
+cd ./models/mb_body_mask
+
+# 1. freeze the weights of detection network, only update the roi mask part
+sh train_maskyolo_step1.sh
+
+# 2. update all the network with finetuning the model of step1
+sh train_maskyolo_step2.sh
+
 ```
 
 
