@@ -7,7 +7,7 @@
 - [x] YOLO v2 (RegionLossLayer) and v3 (YoloLossLayer) are supported
 - [x] Instance Mask segmentation with Yolo
 - [x] Keypoints Recognition with yolo
-- [ ] training data preparation and training
+- [x] training data preparation and training
 
 #### preparation
 ```
