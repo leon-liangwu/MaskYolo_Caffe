@@ -16,6 +16,12 @@ class BoxLabel {
   float box_index_;
 };
 
+class KpsLabel {
+ public:
+  float kps_x_[17];
+  float kps_y_[17];
+  float kps_index_;
+};
 /**
  * @brief Applies common transformations to the input data, such as
  * scaling, mirroring, substracting the image mean...
@@ -46,6 +52,7 @@ class DataTransformer {
 
   void Transform(const Datum& datum, Blob<Dtype>* transformed_blob, vector<BoxLabel>& box_labels);
   void Transform(const Datum& datum, Blob<Dtype>* transformed_blob, vector<BoxLabel>& box_labels, cv::Mat& mask);
+  void Transform(const Datum& datum, Blob<Dtype>* transformed_blob, vector<BoxLabel>& box_labels, vector<KpsLabel>& kps_labels, cv::Mat& mask);
 
   /**
    * @brief Applies the transformation defined in the data layer's

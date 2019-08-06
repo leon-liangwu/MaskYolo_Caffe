@@ -14,6 +14,7 @@
 #include <fstream>  // NOLINT(readability/streams)
 #include <string>
 #include <vector>
+#include <map>
 
 #include "caffe/common.hpp"
 #include "caffe/proto/caffe.pb.h"
@@ -307,12 +308,18 @@ void CVMatToDatum(const cv::Mat& cv_img, Datum* datum) {
 }
 
 void DatumToImage_Mask(const Datum& datum, cv::Mat& img, cv::Mat& mask) {
+   if (datum.encoded()) {
+    LOG(FATAL) << "Datum encoded";
+  }
   const int datum_channels = datum.channels();
   const int datum_height = datum.height();
   const int datum_width = datum.width();
+
+  const int datum_size = datum_channels * datum_height * datum_width;
   CHECK_GT(datum_channels, 0);
   CHECK_GT(datum_height, 0);
   CHECK_GT(datum_width, 0);
+
   img.create(datum_height, datum_width, CV_8UC3);
   mask.create(datum_height, datum_width, CV_8UC1);
   CHECK_EQ(img.rows, datum_height);
@@ -321,37 +328,81 @@ void DatumToImage_Mask(const Datum& datum, cv::Mat& img, cv::Mat& mask) {
   CHECK_EQ(mask.cols, datum_width);
 
   const std::string& datum_buf = datum.data();
-  //CHECK_EQ(datum_buf.size(), datum_size);
+  CHECK_EQ(datum_buf.size(), datum_size);
 
-  if(datum_channels == 3)
+  int size = datum_width * datum_height;
+  for(int r = 0; r < img.rows; r++)
   {
-    int size = datum_width * datum_height;
-    for(int r = 0; r < img.rows; r++)
+    for(int c = 0; c < img.cols; c++)
     {
-      for(int c = 0; c < img.cols; c++)
-      {
-        img.at<uchar>(r, c*3 + 0) = (uchar)datum_buf[r * datum_width + c + 0 * size];
-        img.at<uchar>(r, c*3 + 1) = (uchar)datum_buf[r * datum_width + c + 1 * size];
-        img.at<uchar>(r, c*3 + 2) = (uchar)datum_buf[r * datum_width + c + 2 * size];
-        mask.at<uchar>(r, c) = (uchar)datum_buf[r * datum_width + c + 3 * size];
-      }
+      img.at<uchar>(r, c*3 + 0) = (uchar)datum_buf[r * datum_width + c + 0 * size];
+      img.at<uchar>(r, c*3 + 1) = (uchar)datum_buf[r * datum_width + c + 1 * size];
+      img.at<uchar>(r, c*3 + 2) = (uchar)datum_buf[r * datum_width + c + 2 * size];
+      mask.at<uchar>(r, c) = (uchar)datum_buf[r * datum_width + c + 3 * size];
     }
   }
-  else
+}
+
+void DatumToImage_Kps(const Datum& datum, cv::Mat& img, cv::Mat& mask, std::map< int, std::vector<float> >& kps_map) {
+   if (datum.encoded()) {
+    LOG(FATAL) << "Datum encoded";
+  }
+  const int datum_channels = datum.channels();
+  const int datum_height = datum.height();
+  const int datum_width = datum.width();
+
+  const int datum_size = datum_channels * datum_height * datum_width;
+  CHECK_GT(datum_channels, 0);
+  CHECK_GT(datum_height, 0);
+  CHECK_GT(datum_width, 0);
+
+  img.create(datum_height, datum_width, CV_8UC3);
+  mask.create(datum_height, datum_width, CV_8UC1);
+  CHECK_EQ(img.rows, datum_height);
+  CHECK_EQ(img.cols, datum_width);
+  CHECK_EQ(mask.rows, datum_height);
+  CHECK_EQ(mask.cols, datum_width);
+
+  const std::string& datum_buf = datum.data();
+  CHECK_EQ(datum_buf.size(), datum_size);
+
+  int size = datum_width * datum_height;
+  kps_map.clear();
+  std::map< int, std::vector<float> >::iterator iter;  
+  for(int r = 0; r < img.rows; r++)
   {
-    std::vector<char> vec_data(&datum_buf[0], &datum_buf[0] + datum_buf.size()); 
-    cv::Mat im4ch = cv::imdecode(vec_data, -1);
-     for(int r = 0; r < img.rows; r++)
+    for(int c = 0; c < img.cols; c++)
     {
-      for(int c = 0; c < img.cols; c++)
+      img.at<uchar>(r, c*3 + 0) = (uchar)datum_buf[r * datum_width + c + 0 * size];
+      img.at<uchar>(r, c*3 + 1) = (uchar)datum_buf[r * datum_width + c + 1 * size];
+      img.at<uchar>(r, c*3 + 2) = (uchar)datum_buf[r * datum_width + c + 2 * size];
+      mask.at<uchar>(r, c) = (uchar)datum_buf[r * datum_width + c + 3 * size];
+      int kps_index = (uchar)datum_buf[r * datum_width + c + 4 * size];
+      int kps_class = (uchar)datum_buf[r * datum_width + c + 5 * size];
+      if(0 != kps_index)
       {
-        img.at<uchar>(r, c*3 + 0) = im4ch.at<uchar>(r, c*4+0);
-        img.at<uchar>(r, c*3 + 1) = im4ch.at<uchar>(r, c*4+1);
-        img.at<uchar>(r, c*3 + 2) = im4ch.at<uchar>(r, c*4+2);
-        mask.at<uchar>(r, c) = im4ch.at<uchar>(r, c*4+3);
+        iter = kps_map.find(kps_index);
+        if(iter != kps_map.end())
+        {
+          kps_map[kps_index][(kps_class-1)*2 + 0 ] = r;
+          kps_map[kps_index][(kps_class-1)*2 + 1 ] = c;
+        }
+        else
+        {
+          std::vector<float> kps_vec;
+          kps_vec.clear();
+          for(int i=0; i<17*2; i++)
+          {
+            kps_vec.push_back(0);
+          }
+          kps_map[kps_index] = kps_vec;
+          kps_map[kps_index][(kps_class-1)*2 + 0 ] = r;
+          kps_map[kps_index][(kps_class-1)*2 + 1 ] = c;
+        }
       }
     }
   }
 }
+
 #endif  // USE_OPENCV
 }  // namespace caffe

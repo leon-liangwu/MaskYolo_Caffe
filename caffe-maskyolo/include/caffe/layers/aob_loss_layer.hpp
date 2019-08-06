@@ -1,5 +1,5 @@
-#ifndef CAFFE_YOLO_LOSS_LAYER_HPP_
-#define CAFFE_YOLO_LOSS_LAYER_HPP_
+#ifndef CAFFE_AOB_LOSS_LAYER_HPP_
+#define CAFFE_AOB_LOSS_LAYER_HPP_
 
 #include <vector>
 
@@ -19,16 +19,16 @@ template <typename Dtype>
 Dtype Calc_rmse(const vector<Dtype>& box, const vector<Dtype>& truth);
 
 template <typename Dtype>
-class YoloLossLayer : public LossLayer<Dtype> {
+class AobLossLayer : public LossLayer<Dtype> {
  public:
-  explicit YoloLossLayer(const LayerParameter& param)
+  explicit AobLossLayer(const LayerParameter& param)
       : LossLayer<Dtype>(param), diff_() {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
 
-  virtual inline const char* type() const { return "YoloLoss"; }
+  virtual inline const char* type() const { return "AobLoss"; }
 
  protected:
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
@@ -70,6 +70,14 @@ class YoloLossLayer : public LossLayer<Dtype> {
   float ignore_h_;
   float truth_thresh_;
 
+  int lab_count_;
+  bool with_mask_;
+  bool with_kps_;
+  bool with_rcnn_;
+  int mask_w_;
+  int mask_h_;
+  int label_stride_;
+
   vector<float> biases_;
   vector<int> mask_;
 
@@ -79,4 +87,4 @@ class YoloLossLayer : public LossLayer<Dtype> {
 
 }  // namespace caffe
 
-#endif  // CAFFE_YOLO_LOSS_LAYER_HPP_
+#endif  // CAFFE_AOB_LOSS_LAYER_HPP_

@@ -1,5 +1,7 @@
 #include <vector>
 
+#include "caffe/filler.hpp"
+#include "caffe/layer.hpp"
 #include "caffe/layers/resize_layer.hpp"
 #include "caffe/util/math_functions.hpp"
 
@@ -7,7 +9,7 @@ namespace caffe {
 
   template <typename Dtype>
   void ResizeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+	  const vector<Blob<Dtype>*>& top) {
     // Configure the kernel size, padding, stride, and inputs.
     ResizeParameter resize_param = this->layer_param_.resize_param();
 
@@ -27,14 +29,14 @@ namespace caffe {
       this->out_width_ = int(resize_param.out_width_scale() * in_width);
     }
 
-    for (int i = 0; i<4; i++) {
-      this->locs_.push_back(new Blob<Dtype>);
-    }
+	for (int i = 0; i<4; i++) {
+		this->locs_.push_back(new Blob<Dtype>);
+	}
   }
 
   template <typename Dtype>
   void ResizeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+	  const vector<Blob<Dtype>*>& top) {
     ResizeParameter resize_param = this->layer_param_.resize_param();
     bool is_pyramid_test = resize_param.is_pyramid_test();
     if (is_pyramid_test == false) {
@@ -57,14 +59,13 @@ namespace caffe {
 
   template <typename Dtype>
   void ResizeLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+	  const vector<Blob<Dtype>*>& top) {
 
   }
 
   template <typename Dtype>
   void ResizeLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
+	  const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
 
   }
 

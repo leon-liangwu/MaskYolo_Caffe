@@ -377,15 +377,6 @@ box decode_box(box b, box anchor)
     return decode;
 }
 
-int int_index(vector<int>& a, int val, int n)
-{
-    int i;
-    for(i = 0; i < n; ++i){
-        if(a[i] == val) return i;
-    }
-    return -1;
-}
-
 
 template <typename Dtype>
 void flatten(Dtype *x, int size, int layers, int batch, int forward)
@@ -408,7 +399,14 @@ void flatten(Dtype *x, int size, int layers, int batch, int forward)
 
 
 
-
+int int_index(vector<int>& a, int val, int n)
+{
+    int i;
+    for(i = 0; i < n; ++i){
+        if(a[i] == val) return i;
+    }
+    return -1;
+}
 
 
 
@@ -500,15 +498,15 @@ void get_predict_boxes(int batch_ind, vector< vector<float> > &pred_box, box *bo
 }
 
 
-    /*
-    struct compclass {
-    template <typename Dtype> bool operator() (vector<Dtype> &a,vector<Dtype> &b) { return (a[4]<b[4]);}
-    } mycomp;
-    */
+/*
+struct compclass {
+   template <typename Dtype> bool operator() (vector<Dtype> &a,vector<Dtype> &b) { return (a[4]<b[4]);}
+} mycomp;
+*/
 
-    bool mycomp(vector<float> &a,vector<float> &b)
-    {
-        return (a[4]<b[4]);
-    }
+bool mycomp(vector<float> &a,vector<float> &b)
+{
+    return (a[4]<b[4]);
+}
 
 }

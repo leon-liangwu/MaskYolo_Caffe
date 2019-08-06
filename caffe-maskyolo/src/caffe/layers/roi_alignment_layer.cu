@@ -46,15 +46,13 @@ __global__ void ROIAlignForward(const int nthreads, const Dtype* bottom_data,
     float roi_end_w = (float)(bottom_rois[3] * spatial_scale);
     float roi_end_h = (float)(bottom_rois[4] * spatial_scale);
 
-    // printf(" start w h end w e %f %f %f %f\n", roi_start_w, roi_start_h, roi_end_w, roi_end_h);
-
     // Force malformed ROIs to be 1x1
     float roi_width =  fmaxf(roi_end_w - roi_start_w + 1, 1);
     float roi_height = fmaxf(roi_end_h - roi_start_h + 1, 1);
     float bin_size_h = (roi_height) / ((float)(pooled_height));
     float bin_size_w = (roi_width) / ((float)(pooled_width));
 
-//    printf("(roi_height, roi_width): %f %f (bin_size_h, bin_size_w): %f %f\n", roi_height, roi_width, bin_size_h, bin_size_w);
+    //printf("(roi_start_w, roi_start_h): %f %f (roi_height, roi_width): %f %f (bin_size_h, bin_size_w): %f %f\n", roi_start_w, roi_start_h, roi_height, roi_width, bin_size_h, bin_size_w);
 
     float hstart = ((float)(ph)) * bin_size_h;
     float wstart = ((float)(pw)) * bin_size_w;
@@ -72,7 +70,7 @@ __global__ void ROIAlignForward(const int nthreads, const Dtype* bottom_data,
     wstart = fminf(fmaxf(wstart + roi_start_w, 0), width-1);
     wend = fminf(fmaxf(wend + roi_start_w, 0), width-1);
 
-//    printf("===========(hstart, wstar, hend, wend): %f %f %f %f\n",hstart, wstart, hend, wend);
+    //printf("===========(hstart, wstar, hend, wend): %f %f %f %f\n",hstart, wstart, hend, wend);
 
     bool is_empty = (hend < hstart) || (wend < wstart);
 

@@ -91,7 +91,6 @@ box get_region_box(Dtype *x, Dtype *biases, int n, int index, int i, int j, int 
     b.h = exp(x[index + 3 * stride]) * biases[2*n+1] / h;
     return b;
 }
-
 template <typename Dtype>
 box get_yolo_box(Dtype *x, vector<float>& biases, int n, int index, int i, int j, int w, int h, int nw, int nh)
 {
@@ -103,7 +102,6 @@ box get_yolo_box(Dtype *x, vector<float>& biases, int n, int index, int i, int j
     b.h = exp(x[index + 3 * stride]) * biases[2*n+1] / nh;
     return b;
 }
-
 template <typename Dtype>
 float delta_region_box(box truth, Dtype *x, Dtype *biases, int n, int index, int i, int j, int w, int h, Dtype *delta, float scale, Dtype &coord_loss, Dtype &area_loss)
 {
@@ -128,7 +126,6 @@ float delta_region_box(box truth, Dtype *x, Dtype *biases, int n, int index, int
     area_loss += scale * (pow((float)((tw - x[index + 2 * stride])), 2) + pow((float)((th - x[index + 3 * stride])), 2));
     return iou;
 }
-
 template <typename Dtype>
 float delta_yolo_box(box truth, Dtype *x, vector<float>& biases, int n, int index, int i, int j, int w, int h, int nw, int nh, Dtype *delta, float scale, Dtype &coord_loss, Dtype &area_loss)
 {
@@ -152,8 +149,92 @@ float delta_yolo_box(box truth, Dtype *x, vector<float>& biases, int n, int inde
     area_loss += 1.0 * (pow((float)((tw - x[index + 2 * stride])), 2) + pow((float)((th - x[index + 3 * stride])), 2));
     return iou;
 }
+template <typename Dtype>
+float diff_iou_loss2(box& truth, Dtype *x, vector<float>& biases, int n, int index, int i, int j, int w, int h, Dtype *delta, float scale, Dtype &iou_loss, int nw = 0, int nh = 0)
+{
+    int stride = w * h;
+    box pred = get_yolo_box(x, biases, n, index, i, j, w, h, nw, nh);
+    box p = pred, t=truth;
+    float iou = box_iou(pred, truth);
+    
+    Dtype X_p = p.w * p.h;
+    Dtype X_t = t.w * t.h;
+    Dtype X = (X_p + X_t) / 2;
+    Dtype Bw = std::max(p.x+p.w/2, t.x+t.w/2) - std::min(p.x-p.w/2, t.x-t.w/2);
+    Dtype Bh = std::max(p.y+p.h/2, t.y+t.h/2) - std::min(p.y-p.h/2, t.y-t.h/2);
+    float aob = X / (Bw * Bh);
+
+    Dtype dp_ox = logistic_gradient(logistic_activate(x[index + 0 * stride])) / w;
+    Dtype dp_oy = logistic_gradient(logistic_activate(x[index + 1 * stride])) / h;
+    Dtype dp_ow = exp(x[index + 2 * stride]) * biases[2*n] / nw;
+    Dtype dp_oh = exp(x[index + 3 * stride]) * biases[2*n+1] / nh;
+
+    Dtype dX_pw = p.h / 2;
+    Dtype dX_ph = p.w / 2 ;
+
+    Dtype dBw_px = 0, dBw_pw = 0;
+    if(p.x+p.w/2>t.x+t.w/2 &&  p.x-p.w/2>t.x-t.w/2)
+    {
+        dBw_px = 1.0, dBw_pw = 1.0/2;
+    }
+    else if(p.x+p.w/2>t.x+t.w/2 &&  p.x-p.w/2<t.x-t.w/2)
+    {
+        dBw_px = 0.0, dBw_pw = 1.0;
+    }
+    else if(p.x+p.w/2<t.x+t.w/2 &&  p.x-p.w/2<t.x-t.w/2)
+    {
+        dBw_px = -1.0, dBw_pw = 1.0/2;
+    }
+    else if(p.x+p.w/2<t.x+t.w/2 &&  p.x-p.w/2>t.x-t.w/2)
+    {
+        dBw_px = 0.0, dBw_pw = 0.0;
+    }
 
 
+    Dtype dBh_py = 0, dBh_ph = 0;
+    if(p.y+p.h/2>t.y+t.h/2 && p.y-p.h/2>t.y-t.h/2)
+    {
+        dBh_py = 1.0, dBh_ph = 1.0/2;
+    }
+    else if(p.y+p.h/2>t.y+t.h/2 && p.y-p.h/2<t.y-t.h/2)
+    {
+        dBh_py = 0.0, dBh_ph = 1.0;
+    }
+    else if(p.y+p.h/2<t.y+t.h/2 && p.y-p.h/2<t.y-t.h/2)
+    {
+        dBh_py = -1.0, dBh_ph = 1.0/2;
+    }
+    else if(p.y+p.h/2<t.y+t.h/2 && p.y-p.h/2>t.y-t.h/2)
+    {
+        dBh_py = 0.0, dBh_ph = 0.0;
+    }
+
+    Dtype dL_aob = (Bw * Bh) / X;
+    Dtype B = Bw * Bh;
+    Dtype B_2 = Bw * Bh * Bw * Bh;
+    Dtype dAoB_px = - X / B_2 * dBw_px * Bh;
+    Dtype dAoB_py = - X / B_2 * Bw * dBh_py;
+    Dtype dAoB_pw = dX_pw / B - X / B_2 * dBw_pw * Bh;
+    Dtype dAoB_ph = dX_ph / B - X / B_2 * Bw * dBh_ph;
+
+    delta[index + 0 * stride] = (-1) * scale * dL_aob * dAoB_px * dp_ox;
+    delta[index + 1 * stride] = (-1) * scale * dL_aob * dAoB_py * dp_oy;
+    delta[index + 2 * stride] = (-1) * scale * dL_aob * dAoB_pw * dp_ow;
+    delta[index + 3 * stride] = (-1) * scale * dL_aob * dAoB_ph * dp_oh;
+
+    /*
+    std::cout<<"aob:  "<<aob<<std::endl;
+    std::cout<<"output  x y w h: "<<x[index + 0 * stride]<<" "
+            <<x[index + 1 * stride]<<" "<<x[index + 2 * stride]<<" "<<x[index + 3 * stride]<<std::endl;
+    std::cout<<"predict x y w h: "<<p.x<<" "<<p.y<<" "<<p.w<<" "<<p.h<<std::endl;
+    std::cout<<"truth   x y w h: "<<t.x<<" "<<t.y<<" "<<t.w<<" "<<t.h<<std::endl;
+    std::cout<<"dAoB_px dAoB_py dAoB_pw dAoB_ph: "<<delta[index + 0 * stride]<<" "<<delta[index + 1 * stride]
+            <<" "<<delta[index + 2 * stride]<<" "<<delta[index + 3 * stride]<<std::endl;
+    */
+    iou_loss += - scale *log(aob);
+
+    return iou;
+}
 template <typename Dtype>
 void delta_region_class(Dtype *output, Dtype *delta, int index, int class_ind, int classes, float scale, Dtype &avg_cat, Dtype &class_loss, int stride)
 {
@@ -187,7 +268,7 @@ void delta_yolo_class(Dtype *output, Dtype *delta, int index, int class_ind, int
     }
     
 }
-
+int int_index(vector<int>& a, int val, int n);
 int entry_index(int side_w, int side_h, int coords, int classes, int location, int entry);
 
 template <typename Dtype>
@@ -239,8 +320,6 @@ void get_predict_boxes(int batch_ind, int side_w, int side_h, Dtype *biases, int
 }
 
 bool mycomp(vector<float> &a,vector<float> &b);
-
-int int_index(vector<int>& a, int val, int n);
 
 }
 

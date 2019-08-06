@@ -66,6 +66,7 @@ class RegionLossLayer : public LossLayer<Dtype> {
   float thresh_;
   bool bias_match_;
   bool with_mask_;
+  bool with_kps_;
   bool with_rcnn_;
   int mask_w_;
   int mask_h_;
@@ -74,8 +75,6 @@ class RegionLossLayer : public LossLayer<Dtype> {
   Blob<Dtype> biases_;
   Blob<Dtype> output_;
   Blob<Dtype> diff_;
-  int num_train_;
-  int display_inter_;
 };
 
 }  // namespace caffe

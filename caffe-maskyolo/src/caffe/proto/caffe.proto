@@ -436,12 +436,16 @@ message LayerParameter {
   optional DecodeRoisParameter decode_rois_param = 203;
   // Yolo rois generator
   optional RoiGenParameter roi_gen_param = 204;
+  // Yolo region loss layer
+  optional YoloLossParameter yolo_loss_param = 206;
+  // Yolo aob loss layer
+  optional AobLossParameter aob_loss_param = 205;
 
-  optional SmoothL1LossParameter smooth_l1_loss_param = 8266712;
   optional ResizeParameter resize_param = 300;
 
-  // Yolo region loss layer
-  optional YoloLossParameter yolo_loss_param = 205;
+
+
+  optional SmoothL1LossParameter smooth_l1_loss_param = 8266712;
 }
 
 // Message that stores parameters used to apply transformation
@@ -471,8 +475,6 @@ message TransformationParameter {
   optional float  jitter = 10 [default = 0.1];
   optional bool keep_ratio = 11 [default = false];
   optional float scale_margin = 12 [default = 0.25];
-  optional bool rotate = 13 [default = false];
-  optional float rotate_angle = 14 [default = 6];
 }
 
 // Message that stores parameters shared by loss layers
@@ -1481,10 +1483,10 @@ message RegionLossParameter {
   optional float thresh = 12 [default = 0.6];
   optional bool bias_match = 13 [default = false];
   optional bool with_mask = 14 [default = false];
+  optional bool with_kps = 22 [default = false];
   optional uint32 mask_w = 15 [default = 224];
   optional uint32 mask_h = 16 [default = 224];
   optional bool with_rcnn = 17[default = false];
-  optional uint32 display_inter = 18 [default = 100];
 
 }
 
@@ -1507,8 +1509,10 @@ message DecodeRoisParameter {
   optional uint32 mask_w = 15 [default = 224];
   optional uint32 mask_h = 16 [default = 224];
   optional uint32 target_size = 17 [default = 28];
-  optional uint32 net_w = 18 [default = 224];
-  optional uint32 net_h = 19 [default = 224];
+  optional bool with_kps = 18 [default = true];
+  optional uint32 net_w = 19 [default = 224];
+  optional uint32 net_h = 20 [default = 224];
+  optional float sigma = 21 [default = 0];
 
 }
 
@@ -1528,7 +1532,6 @@ message RoiGenParameter {
   optional float thresh = 12 [default = 0.6];
   optional uint32 net_w = 18 [default = 224];
   optional uint32 net_h = 19 [default = 224];
-
 }
 
 
@@ -1568,6 +1571,7 @@ message SmoothL1LossParameter {
   //   |x| - 0.5 / sigma / sigma -- otherwise
   optional float sigma = 1 [default = 1];
 }
+
 // Message that stores parameters used by ResizeLayer
 message ResizeParameter {
   //optional float resize_ratio = 1 [default = 1.0]; // The resize ratio (equal in Y, X)
@@ -1577,6 +1581,38 @@ message ResizeParameter {
   optional float out_height_scale = 4;
   optional float out_width_scale = 5;
 }
+
+message AobLossParameter {
+  // Yolo region loss layer
+  optional uint32 num_class = 1 [default = 20];
+  optional uint32 num_object = 2 [default = 2];
+  optional uint32 num_coord = 3 [default = 4];
+
+  optional float object_scale = 4 [default = 1.0];
+  optional float noobject_scale = 5 [default = 0.5];
+  optional float class_scale = 6 [default = 1.0];
+  optional float coord_scale = 7 [default = 5.0];
+
+  repeated float anchor_x = 8;
+  repeated float anchor_y = 9;
+  repeated uint32 mask = 10;
+  optional bool anchor_mask = 11 [default = false];
+
+  optional float ignore_thresh = 12 [default = 0.5];
+  optional float truth_thresh = 13 [default = 1.0];
+
+  optional uint32 net_w = 14 [default = 224];
+  optional uint32 net_h = 15 [default = 224];
+  optional float ignore_w = 16 [default = 0.0];
+  optional float ignore_h = 17 [default = 0.0];
+
+  optional bool with_mask = 18 [default = false];
+  optional bool with_kps = 22 [default = false];
+  optional uint32 mask_w = 19 [default = 224];
+  optional uint32 mask_h = 20 [default = 224];
+  optional bool with_rcnn = 21[default = false];
+}
+
 message YoloLossParameter {
   // Yolo region loss layer
   optional uint32 num_class = 1 [default = 20];
@@ -1598,4 +1634,11 @@ message YoloLossParameter {
 
   optional uint32 net_w = 14 [default = 224];
   optional uint32 net_h = 15 [default = 224];
+  optional float ignore_w = 16 [default = 0.0];
+  optional float ignore_h = 17 [default = 0.0];
+
+  optional bool with_mask = 18 [default = false];
+  optional uint32 mask_w = 19 [default = 224];
+  optional uint32 mask_h = 20 [default = 224];
+  optional bool with_rcnn = 21[default = false];
 }
