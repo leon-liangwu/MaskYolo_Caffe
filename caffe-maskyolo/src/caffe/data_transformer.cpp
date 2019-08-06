@@ -316,6 +316,50 @@ void correct_boxes(vector<BoxLabel> &ori_labels, vector<BoxLabel>& box_labels,
     }
 }
 
+
+void correct_kps(vector<KpsLabel> &kps_labels,
+                    float dx, float dy, float sx, float sy, bool flip)
+{
+    for(int i =0; i<kps_labels.size(); i++)
+    {
+        for(int j=0; j<17;j++)
+        {
+          if(kps_labels[i].kps_x_[j] != 0 && kps_labels[i].kps_y_[j] != 0)
+          {
+            kps_labels[i].kps_x_[j] = kps_labels[i].kps_x_[j] * sx - dx;
+            kps_labels[i].kps_y_[j] = kps_labels[i].kps_y_[j] * sy - dy;
+
+            if(flip){
+              kps_labels[i].kps_x_[j] = 1. - kps_labels[i].kps_x_[j];
+            }
+
+            if(kps_labels[i].kps_x_[j] >= 1.0  || kps_labels[i].kps_x_[j] < 0)
+            {
+              kps_labels[i].kps_x_[j] = 0;
+            }
+            if(kps_labels[i].kps_y_[j] >= 1.0  || kps_labels[i].kps_y_[j] < 0)
+            {
+              kps_labels[i].kps_y_[j] = 0;
+            }
+          }
+        }
+
+        if(flip)
+        {
+          for(int j=1; j<17; j+=2)
+          {
+            float tmp_x = kps_labels[i].kps_x_[j];
+            kps_labels[i].kps_x_[j] = kps_labels[i].kps_x_[j+1];
+            kps_labels[i].kps_x_[j+1] = tmp_x;
+
+            float tmp_y = kps_labels[i].kps_y_[j];
+            kps_labels[i].kps_y_[j] = kps_labels[i].kps_y_[j+1];
+            kps_labels[i].kps_y_[j+1] = tmp_y;
+          }
+        }
+    }
+}
+
 void pad_image(cv::Mat &img_crop, vector<BoxLabel>& box_labels)
 {
     int ow = img_crop.cols;
@@ -371,8 +415,41 @@ void draw_box(cv::Mat img, vector<BoxLabel> & box_vec)
     cv::Point p1(left, top);
     cv::Point p2(right, bottom);
 
-    cv::rectangle(img, p1, p2, Scalar(255, 0, 0), 5 );
+    cv::rectangle(img, p1, p2, Scalar(255, 0, 0), 1);
   }
+}
+
+void draw_kps(cv::Mat img, vector<KpsLabel> & kps_vec)
+{
+  int sks[38] = {15, 13,13, 11,16, 14,14, 12,11, 12, 5, 11, 6, 12,5, 
+               6,5,  7,6,  8,7,  9,8, 10, 1,  2, 0,  1, 0,  2, 1, 
+              3, 2,  4, 3,  5, 4,  6};
+  int img_w = img.cols;
+  int img_h = img.rows;
+  for(int i=0; i<kps_vec.size(); i++)
+  {
+    for(int j=0; j<17;j++)
+    {
+      if(kps_vec[i].kps_x_[j] !=0 && kps_vec[i].kps_y_[j]!=0)
+      {
+        cv::Point p1(int(kps_vec[i].kps_x_[j] * img_w), int(kps_vec[i].kps_y_[j] * img_h));
+        cv::circle(img, p1, 2, Scalar(255, 255, 255), 1);
+
+      }
+      for(int j=0; j< 19; j++)
+      {
+        cv::Point p1((int)(kps_vec[i].kps_x_[sks[j*2+0]]*img_w), (int)(kps_vec[i].kps_y_[sks[j*2+0]]*img_h));
+        cv::Point p2((int)(kps_vec[i].kps_x_[sks[j*2+1]]*img_w), (int)(kps_vec[i].kps_y_[sks[j*2+1]]*img_h));
+        if(p1.x !=0 && p1.y !=0 && p2.x !=0 && p2.y != 0)
+        {
+          cv::line(img, p1, p2, Scalar(255, 255, 255), 1);
+        }
+          
+      }
+      
+    }
+  }
+
 }
 
 void place_image(cv::Mat &img_scale,float dx, float dy, cv::Mat &img_crop)
@@ -478,6 +555,7 @@ void DataTransformer<Dtype>::Transform(const Datum& datum,
 
     correct_boxes(ori_labels, box_labels, dx, dy, 1./sx, 1./sy, mirror);
 
+
     float des_ratio = 1.0;
     if(resize_h > 0 && resize_w > 0)
     {
@@ -575,11 +653,8 @@ void DataTransformer<Dtype>::Transform(const Datum& datum,
   const int resize_h = param_.resize_h();
   const float jitter = param_.jitter();
   const float scale_margin = param_.scale_margin();
-  const bool rotate = param_.rotate();
-  const float rotate_angle = param_.rotate_angle();
 
   int float_size = datum.float_data_size();
-
 
   /*
   float wh_rate = 1.0;
@@ -590,7 +665,7 @@ void DataTransformer<Dtype>::Transform(const Datum& datum,
     "Mask box label has 6 labels (class,  box), optionally plus a ratio value";
 
   vector<BoxLabel> ori_labels;
-  for (int j = 0; j+6 < float_size-1; j += 6) {
+  for (int j = 0; j < float_size-1; j += 6) {
     BoxLabel box_label;
     box_label.class_label_ = datum.float_data(j);
     int k = 1;
@@ -601,80 +676,11 @@ void DataTransformer<Dtype>::Transform(const Datum& datum,
     ori_labels.push_back(box_label);
   }
 
-  int mask_valid = (int)datum.float_data(float_size - 2);
-
   cv::Mat cv_img;
   DatumToImage_Mask(datum, cv_img, mask);
 
   bool mirror = Rand(2);
   bool distort = Rand(2);
-
-  if(mask_valid && rotate)// && Rand(2))
-  {
-    float angle = rand_uniform(-rotate_angle, rotate_angle);
-        //指定旋转中心  
-    cv::Point2f center(cv_img.rows / 2., cv_img.cols / 2.);  
-      
-    //获取旋转矩阵（2x3矩阵）  
-    cv::Mat rot_mat = cv::getRotationMatrix2D(center, angle, 1.0);  
-    float cos_a = rot_mat.at<double>(0, 0);
-    float sin_a = rot_mat.at<double>(0, 1);
-
-    //根据旋转矩阵进行仿射变换  
-    cv::warpAffine(cv_img, cv_img, rot_mat, cv_img.size()); 
-    cv::warpAffine(mask, mask, rot_mat, mask.size()); 
-
-
-    std::cout<<cos_a<<" sin a: "<<sin_a<<std::endl;
-
-    int rows = cv_img.rows;
-    int cols = cv_img.cols;
-  
-    for(int i =0; i<ori_labels.size(); i++)
-    {
-      std::cout<<"index: "<<i<<std::endl;
-      float x = ori_labels[i].box_[0];
-      float y = ori_labels[i].box_[1];
-      float w = ori_labels[i].box_[2];
-      float h = ori_labels[i].box_[3];
-      std::cout<<ori_labels[i].box_[0]<<" "<<ori_labels[i].box_[1]<<" "<<ori_labels[i].box_[2]<<" "<<ori_labels[i].box_[3]<<std::endl;
-      ori_labels[i].box_[0] = (x-0.5)*cos_a + (y-0.5) * sin_a + 0.5;
-      ori_labels[i].box_[1] = -(x-0.5)*sin_a + (y-0.5) * cos_a + 0.5;
-      ori_labels[i].box_[2] = w;//w * cos_a + h * sin_a;
-      ori_labels[i].box_[3] = h;//h * cos_a + w * sin_a;
-      std::cout<<ori_labels[i].box_[0]<<" "<<ori_labels[i].box_[1]<<" "<<ori_labels[i].box_[2]<<" "<<ori_labels[i].box_[3]<<std::endl;
-      float left = cols;
-      float top = rows;
-      float right = 0;
-      float bottom = 0;
-      int box_ind = ori_labels[i].box_index_;
-      for(int r=0; r<rows; r++)
-      {
-        for(int c=0; c<cols; c++)
-        {
-          if(mask.at<uchar>(r, c) != box_ind)
-            continue;
-
-          left = min(left, (float)c);
-          right = max(right, (float)c);
-          top = min(top, (float)r);
-          bottom = max(bottom, (float)r);
-        }
-      }
-      ori_labels[i].box_[0] = (left + right) / 2 / cols;
-      ori_labels[i].box_[1] = (top + bottom) / 2 / rows;
-      ori_labels[i].box_[2] = (right - left) / 2 / cols;
-      ori_labels[i].box_[3] = (bottom - top) / 2 / rows;
-    }   
-
-    //显示旋转效果  
-    draw_box(cv_img, ori_labels);
-    cv::imshow("rot_img", cv_img);  
-    cv::imshow("rot_mask", mask*20); 
-    
-    cv::waitKey(0);
-
-  }
 
 
   cv::Mat img_crop, mask_crop;
@@ -710,7 +716,6 @@ void DataTransformer<Dtype>::Transform(const Datum& datum,
   place_image(img_scale, dx, dy, img_crop);
   place_image(mask_scale, dx, dy, mask_crop);
   correct_boxes(ori_labels, box_labels, -dx/w, -dy/h, nw/w, nh/h, mirror);
-
   
   if (mirror) { 
      cv::flip(img_crop, img_crop, 1); // horizen flip
@@ -745,6 +750,145 @@ void DataTransformer<Dtype>::Transform(const Datum& datum,
   */
   return;
 }
+
+template<typename Dtype>
+void DataTransformer<Dtype>::Transform(const Datum& datum,
+                                       Blob<Dtype>* transformed_blob,
+                                       vector<BoxLabel>& box_labels,
+                                       vector<KpsLabel>& kps_labels,
+                                       cv::Mat& mask) {
+  const int resize_w = param_.resize_w();
+  const int resize_h = param_.resize_h();
+  const float jitter = param_.jitter();
+  const float scale_margin = param_.scale_margin();
+
+  int float_size = datum.float_data_size();
+
+  /*
+  float wh_rate = 1.0;
+  if(float_size % 6 == 1)
+    wh_rate = datum.float_data(float_size-1);
+  */
+  CHECK_EQ(((float_size-1) % 6) || (float_size % 6), true) <<
+    "Mask box label has 6 labels (class,  box), optionally plus a ratio value";
+
+  vector<BoxLabel> ori_labels;
+  for (int j = 0; j < float_size-1; j += 6) {
+    BoxLabel box_label;
+    box_label.class_label_ = datum.float_data(j);
+    int k = 1;
+    for(k = 1; k < 5; ++k) {
+      box_label.box_[k-1] = datum.float_data(j+k);
+    }
+    box_label.box_index_ = datum.float_data(j+k);
+    ori_labels.push_back(box_label);
+  }
+
+  cv::Mat cv_img;
+  std::map< int, std::vector<float> > kps_map;
+  DatumToImage_Kps(datum, cv_img, mask, kps_map);
+
+  std::map< int, std::vector<float> >::iterator iter;
+  
+  for(iter = kps_map.begin(); iter != kps_map.end(); iter++)
+  {
+    KpsLabel one_kps;
+    one_kps.kps_index_ = iter->first;
+    //std::cout<<"kps index: "<<iter->first<<" kps: ";
+    for(int i=0; i<iter->second.size()/2;i++)
+    {
+      one_kps.kps_x_[i] = 0;
+      one_kps.kps_y_[i] = 0;
+
+      one_kps.kps_y_[i] = iter->second[i*2 + 0] / cv_img.rows;
+      one_kps.kps_x_[i] = iter->second[i*2 + 1] / cv_img.cols;
+      
+
+      //std::cout<<one_kps.kps_x_[i]<<" "<<one_kps.kps_y_[i]<<" ";
+    }
+    kps_labels.push_back(one_kps);
+    //std::cout<<std::endl;
+  }
+
+
+
+  bool mirror = Rand(2);
+  bool distort = Rand(2);
+
+
+  cv::Mat img_crop, mask_crop;
+
+  int ow = cv_img.cols;
+  int oh = cv_img.rows;
+  img_crop =  cv::Mat(oh, ow, cv_img.type(), cv::Scalar::all(128));
+  mask_crop =  cv::Mat::zeros(oh, ow, mask.type());
+  
+  float dw = jitter * ow;
+  float dh = jitter * oh;
+
+  float new_ar = (ow + rand_uniform(-dw, dw)) / (oh + rand_uniform(-dh, dh));
+  float scale = rand_uniform(1. - scale_margin, 1. + scale_margin);
+
+  float nw, nh;
+  float w = ow, h = oh;
+
+  if(new_ar < 1){
+      nh = scale * h;
+      nw = nh * new_ar;
+  } else {
+      nw = scale * w;
+      nh = nw / new_ar;
+  }
+  cv::Mat img_scale, mask_scale;
+  cv::resize(cv_img, img_scale, cv::Size(nw, nh));
+  mask_resize(mask, mask_scale, cv::Size(nw, nh));
+
+  float dx = rand_uniform(0, w - nw);
+  float dy = rand_uniform(0, h - nh);
+
+  place_image(img_scale, dx, dy, img_crop);
+  place_image(mask_scale, dx, dy, mask_crop);
+  correct_boxes(ori_labels, box_labels, -dx/w, -dy/h, nw/w, nh/h, mirror);
+  correct_kps(kps_labels, -dx/w, -dy/h, nw/w, nh/h, mirror);
+  
+  if (mirror) { 
+     cv::flip(img_crop, img_crop, 1); // horizen flip
+     cv::flip(mask_crop, mask_crop, 1); // horizen flip
+  }
+
+  if (resize_w > 0 && resize_h > 0) {
+    cv::resize(img_crop, img_crop, cv::Size(resize_w, resize_h));
+    mask_resize(mask_crop, mask_crop, cv::Size(resize_w, resize_h));
+     //mask_resize(mask, mask, cv::Size(resize_w, resize_h));
+     cv::resize(mask, mask, cv::Size(resize_w, resize_h));
+  }
+
+  if (distort) {
+    random_distort_image(img_crop, 360.0*0.1, 1.5, 1.5); // hsv distortion
+  }
+
+  mask = mask_crop.clone();
+
+  // Transform the cv::image into blob.
+  Transform(img_crop, transformed_blob);
+
+  mask_crop = mask_crop * 20;
+  
+  /*
+  //draw_box(cv_img, ori_labels);
+  draw_box(mask_crop, box_labels);
+  draw_kps(mask_crop, kps_labels);
+  //draw_box(mask, ori_labels);
+  //cv::imshow("img_org", cv_img);
+  cv::imshow("mask", mask_crop);
+  draw_box(img_crop, box_labels);
+  cv::imshow("img_crop", img_crop);
+  //cv::waitKey(0);
+  */
+
+  return;
+}
+
 
 template<typename Dtype>
 void DataTransformer<Dtype>::Transform(const Datum& datum,

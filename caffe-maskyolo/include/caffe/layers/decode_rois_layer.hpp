@@ -61,9 +61,12 @@ class DecodeRoisLayer : public Layer<Dtype> {
   int target_size_;
   int max_box_num_;
   bool with_mask_;
+  bool with_kps_;
+  float sigma_;
   int mask_w_;
   int mask_h_;
   int label_stride_;
+  int kps_stride_;
   int box_num_;
 
   float thresh_;

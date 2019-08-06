@@ -17,12 +17,6 @@ import lmdb
 import fire
 
 
-
-
-#nms = set([cat['supercategory'] for cat in cats])
-#print('COCO supercategories: \n{}'.format(' '.join(nms)))
-
-
 def drawbox(img, box):
     (img_h, img_w, img_c) = img.shape
     (x, y, w, h) = box
@@ -113,7 +107,7 @@ def run(coco_dir, lmdb_dir):
     #dataTypes=['train', 'val']
     #years=['2014', '2017']
 
-    dataTypes=['val']
+    dataTypes=['train']
     years=[ '2017']
 
     dataDir = coco_dir

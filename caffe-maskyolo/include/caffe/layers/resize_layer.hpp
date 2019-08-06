@@ -14,11 +14,11 @@ namespace caffe {
   /**
   * @brief ResizeLayer resize blob using bilinear interpolation
   *
-  *      In layer configuration, <code>is_pyramid_test</code> specifiy whether
-  *      the output height and width is fixed. if <code> is_pyramid_test == false </code>,
-  *      you should give the <code>height</code> and <code>width</code> for output.
-  *      Otherwise, you should give both <code>out_height_scale</code> and
-  *      <code>out_width_scale</code>
+  * 	   In layer configuration, <code>is_pyramid_test</code> specifiy whether
+  * 	   the output height and width is fixed. if <code> is_pyramid_test == false </code>,
+  * 	   you should give the <code>height</code> and <code>width</code> for output.
+  * 	   Otherwise, you should give both <code>out_height_scale</code> and
+  * 	   <code>out_width_scale</code>
   */
   template <typename Dtype>
   class ResizeLayer : public Layer<Dtype> {
@@ -26,9 +26,9 @@ namespace caffe {
     explicit ResizeLayer(const LayerParameter& param)
       : Layer<Dtype>(param) {}
     virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top);
+                            const vector<Blob<Dtype>*>& top);
     virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top);
+                         const vector<Blob<Dtype>*>& top);
 
     virtual inline const char* type() const { return "Resize"; }
 
@@ -37,15 +37,13 @@ namespace caffe {
 
   protected:
     virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top);
+                             const vector<Blob<Dtype>*>& top);
     virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom);
+                              const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
     virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top);
+                             const vector<Blob<Dtype>*>& top);
     virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom);
+                              const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
     vector<Blob<Dtype>*> locs_;
     int out_height_;

@@ -150,6 +150,7 @@ cv::Mat DecodeDatumToCVMat(const Datum& datum, bool is_color);
 
 void CVMatToDatum(const cv::Mat& cv_img, Datum* datum);
 void DatumToImage_Mask(const Datum& datum, cv::Mat& img, cv::Mat& mask);
+void DatumToImage_Kps(const Datum& datum, cv::Mat& img, cv::Mat& mask, std::map< int, std::vector<float> >& kps_map) ;
 #endif  // USE_OPENCV
 
 void LabelBoxToDatum(const std::string& annoname, Datum* datum);

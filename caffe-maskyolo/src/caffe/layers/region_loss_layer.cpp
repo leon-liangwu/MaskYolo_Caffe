@@ -24,7 +24,6 @@ void RegionLossLayer<Dtype>::LayerSetUp(
   n_ = param.num_object();
   coords_ = param.num_coord();
   classes_ = param.num_class();
-  display_inter_ = param.display_inter();
 
   object_scale_ = param.object_scale();
   noobject_scale_ = param.noobject_scale();
@@ -32,9 +31,12 @@ void RegionLossLayer<Dtype>::LayerSetUp(
   coord_scale_ = param.coord_scale();
 
   softmax_ = param.softmax();
+  rescore_ = param.rescore();
 
   thresh_ = param.thresh();
+  bias_match_ = param.bias_match();
   with_mask_ = param.with_mask();
+  with_kps_ = param.with_kps();
   with_rcnn_ = param.with_rcnn() || with_mask_;
   int anchor_x_size = param.anchor_x_size();
   int anchor_y_size = param.anchor_y_size();
@@ -62,15 +64,25 @@ void RegionLossLayer<Dtype>::LayerSetUp(
   
   
   lab_count_ = bottom[1]->count(1);
-  
-  if(with_mask_)
+  if(with_mask_ && !with_kps_)
   {
     mask_w_ = param.mask_w();
     mask_h_ = param.mask_h();
     truths_ = lab_count_ - mask_w_ * mask_h_;
-    LOG(INFO)<<"mask w: "<<mask_w_<<" mask_h: "<<mask_h_<<" truths_: "<<truths_;
+    LOG(INFO)<<"mask w: "<<mask_w_<<" mask_h_: "<<mask_h_<<" truths_: "<<truths_;
     label_stride_ = 6;
     max_box_num_ = truths_ / label_stride_;
+  }
+  else if(with_mask_ && with_kps_)
+  {
+    mask_w_ = param.mask_w();
+    mask_h_ = param.mask_h();
+    truths_ = lab_count_ - mask_w_ * mask_h_;
+    label_stride_ = 6;
+    int kps_stride_ = 35;
+    max_box_num_ = truths_ / (label_stride_ + kps_stride_);
+    truths_ = truths_ - kps_stride_ * max_box_num_;
+    LOG(INFO)<<"total label: "<<lab_count_<<" mask w: "<<mask_w_<<" mask_h_: "<<mask_h_<<" truths_: "<<truths_;    
   }
   else
   {
@@ -81,7 +93,7 @@ void RegionLossLayer<Dtype>::LayerSetUp(
   CHECK_EQ(0, truths_ % label_stride_);
   output_.ReshapeLike(*bottom[0]);
   CHECK_EQ(outputs_, bottom[0]->count(1));
-  num_train_ = 0;
+
 }
 
 template <typename Dtype>
@@ -192,7 +204,7 @@ void RegionLossLayer<Dtype>::Forward_cpu(
           if(label_data[b*lab_count_ + truths_ + y_mask * mask_w_ + x_mask] == 255)
             continue;
         }
-        
+          
         for (n = 0; n < n_; ++n) {
           //int index = size*(j*w_*n_ + i*n_ + n) + b*outputs_;
           int index = size * n * w_ * h_ + j * w_ + i + b*outputs_;
@@ -256,10 +268,10 @@ void RegionLossLayer<Dtype>::Forward_cpu(
           //int index = size*(j*w_*n_ + i*n_ + n) + b*outputs_;
           int index = size * n * w_ * h_ + j * w_ + i + b*outputs_;
           box pred = get_region_box(l_output, l_biases, n, index, i, j, w_, h_);
-
-          pred.w = l_biases[2*n]/w_;
-          pred.h = l_biases[2*n+1]/h_;
-          
+          if(bias_match_){
+              pred.w = l_biases[2*n]/w_;
+              pred.h = l_biases[2*n+1]/h_;
+          }
           pred.x = 0;
           pred.y = 0;
           float iou = box_iou(pred, truth_shift);
@@ -309,16 +321,14 @@ void RegionLossLayer<Dtype>::Forward_cpu(
   recall /= obj_count;
   obj_count /= batch_;
 
-  if(display_inter_ > 0 && num_train_ % display_inter_ == 0)
+  if(!with_rcnn_)
   {
     LOG(INFO) << "loss: " << loss << " class_loss: " << class_loss << " obj_loss: " 
         << obj_loss << " noobj_loss: " << noobj_loss << " coord_loss: " << coord_loss
         << " area_loss: " << area_loss;
     LOG(INFO) << "avg_iou: " << avg_iou << " Class: " << avg_cat << " Obj: "
         << avg_obj << " No Obj: " << avg_anyobj << " Avg Recall: " << recall << " count: "<<(obj_count);
-    num_train_ = 0;
   }
-  num_train_++;
 }
 
 template <typename Dtype>

@@ -1,5 +1,5 @@
-#ifndef CAFFE_MASK_BOX_DATA_LAYER_HPP_
-#define CAFFE_MASK_BOX_DATA_LAYER_HPP_
+#ifndef CAFFE_KPS_BOX_DATA_LAYER_HPP_
+#define CAFFE_KPS_BOX_DATA_LAYER_HPP_
 
 #include <vector>
 
@@ -14,10 +14,10 @@
 namespace caffe {
 
 template <typename Dtype>
-class MaskBoxDataLayer : public BasePrefetchingDataLayer<Dtype> {
+class KpsBoxDataLayer : public BasePrefetchingDataLayer<Dtype> {
  public:
-  explicit MaskBoxDataLayer(const LayerParameter& param);
-  virtual ~MaskBoxDataLayer();
+  explicit KpsBoxDataLayer(const LayerParameter& param);
+  virtual ~KpsBoxDataLayer();
   virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual inline const char* type() const { return "BoxData"; }
@@ -27,6 +27,7 @@ class MaskBoxDataLayer : public BasePrefetchingDataLayer<Dtype> {
 
   void transform_label_v2(Dtype* top_label, const vector<BoxLabel>& box_labels);
   void transform_label_mask(Dtype* top_label, const vector<BoxLabel>& box_labels, const cv::Mat& mask);
+  void transform_label_kps(Dtype* top_label, const vector<BoxLabel>& box_labels, const vector<KpsLabel>& kps_labels, const cv::Mat& mask);
 
  protected:
   void Next();
@@ -44,4 +45,4 @@ class MaskBoxDataLayer : public BasePrefetchingDataLayer<Dtype> {
 
 }  // namespace caffe
 
-#endif  // CAFFE_MASK_BOX_DATA_LAYER_HPP_
+#endif  // CAFFE_KPS_BOX_DATA_LAYER_HPP_

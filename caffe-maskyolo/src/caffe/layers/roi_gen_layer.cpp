@@ -104,7 +104,7 @@ void RoiGenLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     get_predict_boxes(b, w_, h_, l_biases, n_, classes_, pRes, pos_boxes, thresh_);
   }
 
-  sort(pos_boxes.begin(), pos_boxes.end(), mycomp);
+  //sort(pos_boxes.begin(), pos_boxes.end(), mycomp);
 
   int inserted = 0;
   for(; inserted < pos_boxes.size() && inserted < prop_num_; inserted++)
