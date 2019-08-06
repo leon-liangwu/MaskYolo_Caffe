@@ -82,7 +82,7 @@ I just feed yolo results to `roi_pooing` or `roi_alignment` layer.
 
 ![](assets/mask_keypoints.png)
 
-#### prepare lmdb for mask regression
+#### train for mask regression
 ```
 cd ROOT_MaskYolo
 
