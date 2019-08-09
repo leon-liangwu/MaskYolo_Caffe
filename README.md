@@ -84,9 +84,12 @@ I just feed yolo results to `roi_pooing` or `roi_alignment` layer.
 
 #### train for mask regression
 ```
-cd ROOT_MaskYolo
+# compile the pythonapi of cocoapi
+cd ROOT_MaskYolo/lib/cocoapi/PythonAPI
+make -j
 
 # use the following command to generate lmdb which contains mask and keypoints information
+cd ROOT_MaskYolo
 python scripts/createdata_mask_kps.py --coco_dir=/path/to/coco --lmdb_dir=/path/to/lmdb
 
 # the training for mask consists of 2 steps 
