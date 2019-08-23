@@ -30,7 +30,7 @@ make pycaffe
 ```
 
 #### download pretrained models
-Click [DropBox](https://www.dropbox.com/s/z1w2z8ya28v3lah/models.tgz?dl=0 "pretrained models") or [BaiduCloud](https://pan.baidu.com/s/1ZzFzHI90xI2a4QEMWZYeyA) with code `9h89` to download pretrained models
+Click [DropBox](https://www.dropbox.com/s/z1w2z8ya28v3lah/models.tgz?dl=0 "pretrained models") or [WeiYun](https://share.weiyun.com/5CeJFCd) to download pretrained models
 ```
 cd ROOT_MaskYolo
 tar zxvf /your/downlaod/model/path/models.tgz ./
