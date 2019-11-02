@@ -1,6 +1,6 @@
 # YOLO Caffe version with MaskRCNN
 
-### This repo is done before YOLACT: Real-time Instance Segmentation.
+**Statement:** This repo was done before *YOLACT: Real-time Instance Segmentation, ICCV 2019*. And this project was actually completed at the begining of 2018.
 
 ### Caffe-MaskYolo
 
