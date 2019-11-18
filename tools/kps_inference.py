@@ -58,15 +58,16 @@ def run(img_path=def_img_path, model=def_model, weights=def_weights):
     kps_prob = out['kps_out']
     draw_rois_kps(img_res, rois, kps_prob, roi_labels, net_w, net_h, sks)
 
-    cv2.imshow('kps demo', img_res)
-    cv2.waitKey(0)
-
     img_dir, img_name = os.path.split(img_path)
     save_name = img_name.replace('.', '_kps.')
     cv2.imwrite('results/'+save_name, img_res)
     save_path = 'results/'+save_name
     cv2.imwrite('results/'+save_name, img_res)
     print("Result saved in %s!" % save_path)
+
+    cv2.imshow('kps demo', img_res)
+    cv2.waitKey(0)
+
 
 
 if __name__ == '__main__':
