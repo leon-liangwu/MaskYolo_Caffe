@@ -3,6 +3,7 @@
 /models
 /maskyolo
 /tools/results
+/trained_weights
 *.tgz
 *.log
 
