@@ -30,10 +30,10 @@ make pycaffe
 ```
 
 #### download pretrained models
-Click [DropBox](https://www.dropbox.com/s/cks92xbatv26or6/models.tgz?dl=0 "pretrained models") or [WeiYun](https://share.weiyun.com/59m80uL) to download pretrained models
+Click [DropBox](https://www.dropbox.com/s/cks92xbatv26or6/models.tgz?dl=0 "pretrained models") or [WeiYun](https://share.weiyun.com/5RhZR3S) to download pretrained models
 ```
 cd ROOT_MaskYolo
-tar zxvf /your/downlaod/model/path/models.tgz ./
+tar zxvf /your/downlaod/model/path/pretrained_models.tgz ./models_maskyolo/
 ```
 
 
@@ -65,22 +65,20 @@ cd ./models/mb_v2_t4_cls5_yolo/
 sh train_yolo.sh
 ```
 
-### Instance Mask and Keypoints
+### Yolo with Instance Masks 
 
-#### instance mask and keypoints demo
+#### detection and instance mask demo
 ```
 cd tools
 python mask_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
 # Net forward time consumed: 8.67ms
 
-python kps_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
-# Net forward time consumed: 5.58ms
 ```
 
 some resulting samples are show below. 
 I just feed yolo results to `roi_pooing` or `roi_alignment` layer.
 
-![](assets/mask_keypoints.png)
+![](assets/mask_examples.png)
 
 #### train for mask regression
 ```
@@ -90,10 +88,10 @@ make -j
 
 # use the following command to generate lmdb which contains mask and keypoints information
 cd ROOT_MaskYolo
-python scripts/createdata_mask_kps.py --coco_dir=/path/to/coco --lmdb_dir=/path/to/lmdb
+python scripts/createdata_mask.py --coco_dir=/path/to/coco --lmdb_dir=/path/to/lmdb
 
 # the training for mask consists of 2 steps 
-cd ./models/mb_body_mask
+cd ./models_maskyolo/mb_body_mask
 
 # 1. freeze the weights of detection network, only update the roi mask part
 sh train_maskyolo_step1.sh
@@ -102,6 +100,25 @@ sh train_maskyolo_step1.sh
 sh train_maskyolo_step2.sh
 
 ```
+
+Try your trained model with 
+```
+python mask_inference.py --weights=xxx.caffemodel
+```
+
+### Yolo with Instance Keypoints
+
+#### detection and keypoints demo
+```
+cd tools
+
+python kps_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
+# Net forward time consumed: 5.58ms
+```
+
+some resulting samples are show below. 
+
+![](assets/kps_examples.png)
 
 
 
