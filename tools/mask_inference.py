@@ -19,8 +19,8 @@ caffe.set_mode_gpu()
 caffe.set_device(0)
 
 def_img_path = '../assets/000000401862.jpg'
-def_model = '../models/mb_body_mask/mb_body_mask_deploy.prototxt'
-def_weights = '../models/mb_body_mask/mb_body_mask.caffemodel'
+def_model = '../models_maskyolo/mb_body_mask/mb_body_mask_deploy.prototxt'
+def_weights = '../models_maskyolo/pretrained_models/mb_body_mask.caffemodel'
 
 def run(img_path=def_img_path, model=def_model, weights=def_weights):
     net = caffe.Net(model, weights, caffe.TEST)

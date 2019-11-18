@@ -22,8 +22,8 @@ sks = np.fromfile('../assets/sks.dat', dtype=np.int64).reshape(-1, 2)
 
 
 def_img_path = '../assets/000000069213.jpg'
-def_model = '../models/mb_body_keypoints/mb_body_keypoints_deploy.prototxt'
-def_weights = '../models/mb_body_keypoints/mb_body_keypoints.caffemodel'
+def_model = '../models_maskyolo/mb_body_keypoints/mb_body_keypoints_deploy.prototxt'
+def_weights = '../models_maskyolo/pretrained_models/mb_body_keypoints.caffemodel'
 
 def run(img_path=def_img_path, model=def_model, weights=def_weights):
     net = caffe.Net(model, weights, caffe.TEST)
