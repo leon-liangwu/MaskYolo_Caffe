@@ -11,6 +11,8 @@
 - [x] Keypoints Recognition with yolo
 - [x] training data preparation and training
 
+![](assets/mask_keypoints.png)
+
 #### preparation
 ```
 # clone
@@ -77,11 +79,6 @@ python mask_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=
 
 ```
 
-some resulting samples are show below. 
-I just feed yolo results to `roi_pooing` or `roi_alignment` layer.
-
-![](assets/mask_examples.png)
-
 #### train for mask regression
 ```
 # compile the pythonapi of cocoapi
@@ -117,10 +114,6 @@ cd tools
 python kps_inference.py [--img_path=xxx.jpg] [--model=xxx.prototxt] [--weights=xxx.caffemodel] 
 # Net forward time consumed: 5.58ms
 ```
-
-some resulting samples are show below. 
-
-![](assets/kps_examples.png)
 
 
 
