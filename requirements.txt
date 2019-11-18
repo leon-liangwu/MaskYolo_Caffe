@@ -7,3 +7,4 @@ scikit-image
 cython
 fire
 lmdb
+tqdm

@@ -18,7 +18,7 @@ layer {
   }
   data_param {
     # source: "/data/Machine_Learning/lmdb/mask_kps_lmdb"
-    source: "/home/lwuat/Data/lmdbs/maks_only_lmdb"
+    source: "/home/lwuat/Data/lmdbs/mask_only_lmdb"
     batch_size: 32
     backend: LMDB
     min_size_and: 0.08
