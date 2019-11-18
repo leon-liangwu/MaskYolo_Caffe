@@ -56,7 +56,7 @@ def resize_mask(mask, size):
 
 
 def run(coco_dir, lmdb_dir):
-    (dst_h, dst_w) = [320, 320]
+    (dst_h, dst_w) = [240, 320]
     lmdb_path = lmdb_dir
     env = lmdb.open(lmdb_path, map_size=int(1e12))
     txn = env.begin(write=True)

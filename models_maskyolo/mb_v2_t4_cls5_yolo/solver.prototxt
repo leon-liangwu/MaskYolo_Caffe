@@ -1,0 +1,22 @@
+net: "./mb_v2_t4_train.prototxt"
+test_initialization: false
+display: 100
+average_loss: 100
+lr_policy: "multifixed"
+
+stagelr: 0.00001
+stagelr: 0.0005
+stagelr: 0.001
+stagelr: 0.0001
+stagelr: 0.00001
+
+stageiter: 100
+stageiter: 1000
+stageiter: 150000
+stageiter: 200000
+max_iter: 240000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 5000
+snapshot_prefix: "/data/Machine_Learning/models/mb_v2_t4_cls5"
+solver_mode: GPU

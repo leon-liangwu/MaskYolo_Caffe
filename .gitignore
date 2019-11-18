@@ -1,8 +1,9 @@
 #personal
 *.caffemodel
-/models
+models_maskyolo/pretrained_models
 /maskyolo
 /tools/results
+models_maskyolo/trained_weights
 *.tgz
 *.log
 

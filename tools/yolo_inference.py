@@ -36,8 +36,8 @@ box_num = len(biases) / 2
 anchors = generate_anchors(output_size, box_num, biases)
 
 def_img_path = '../assets/000000.png'
-def_model = '../models/mb_v2_t4_cls5_yolo/mb_v2_t4_cls5_deploy.prototxt'
-def_weights = '../models/mb_v2_t4_cls5_yolo/mb_v2_t4_cls5.caffemodel'
+def_model = '../models_maskyolo/mb_v2_t4_cls5_yolo/mb_v2_t4_cls5_deploy.prototxt'
+def_weights = '../models_maskyolo/pretrained_models/mb_v2_t4_cls5.caffemodel'
 
 def run(img_path=def_img_path, model=def_model, weights=def_weights):
     net = caffe.Net(model, weights, caffe.TEST) 
