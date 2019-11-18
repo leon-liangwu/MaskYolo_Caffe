@@ -6,6 +6,7 @@ models_maskyolo/pretrained_models
 models_maskyolo/trained_weights
 *.tgz
 *.log
+debug/*
 
 ## General
 

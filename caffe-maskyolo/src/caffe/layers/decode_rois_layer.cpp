@@ -19,6 +19,7 @@ static float recall = 0;
 static float gt_count = 0;
 static int g_max_box_num = 30;
 static int g_label_stride = 5;
+static int save_ind = 0;
 
 
 namespace caffe {
@@ -596,7 +597,7 @@ void DecodeRoisLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   }
   
   
-  /*
+  /* 
   cv::Mat mask_mat;
   for (int b = 0; b < batch_; ++b)
   {
@@ -607,8 +608,8 @@ void DecodeRoisLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       {
           if(label_data[i*label_stride_+0+b*lab_count_] == 0) break;
           printf("%d %d %f %f %f %f %f %f\n", b, i, label_data[i*label_stride_+0+b*lab_count_], label_data[i*label_stride_+1+b*lab_count_], 
-            label_data[i*label_stride_+2+b*lab_count_], label_data[i*label_stride_+3+b*lab_count_], label_data[i*label_stride_+4+b*lab_count_]
-            , label_data[i*label_stride_+5+b*lab_count_]);
+            label_data[i*label_stride_+2+b*lab_count_], label_data[i*label_stride_+3+b*lab_count_], label_data[i*label_stride_+4+b*lab_count_], 
+            label_data[i*label_stride_+5+b*lab_count_]);
       }
       
       //cv::Mat mask_mat = cv::Mat::zeros(mask_h_,mask_w_, CV_8UC1);
@@ -628,12 +629,16 @@ void DecodeRoisLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       cv::Point p2((int)((truth.x + truth.w/2) * mask_w_),(int)((truth.y + truth.h/2) * mask_h_));
       cv::rectangle(mask_mat, p1, p2, cv::Scalar(255,255,255),1);
       }
-      cv::imshow("mask", mask_mat);
-      cv::waitKey(0);
+      //cv::imshow("mask", mask_mat);
+      //cv::waitKey(0);
+      char save_path[200];
+      sprintf(save_path, "./debug/%05d.jpg", save_ind);
+      cv::imwrite(save_path, mask_mat);
+      save_ind++;
     }
   }
-  */
   
+  */
     
 
   for(int i =0; i<prop_num_; i++)
@@ -702,10 +707,14 @@ void DecodeRoisLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         }
       }
 
-      cv::imshow("mask roi", roi_mask_mat);
-      cv::waitKey(0);
+      //cv::imshow("mask roi", roi_mask_mat);
+      //cv::waitKey(0);
+      char save_path[200];
+      sprintf(save_path, "./debug/%05d.jpg", save_ind);
+      cv::imwrite(save_path, roi_mask_mat);
+      save_ind++;
       */
-
+      
     }
     if(with_kps_)
     {
