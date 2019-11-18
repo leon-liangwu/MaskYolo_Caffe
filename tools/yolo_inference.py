@@ -75,14 +75,15 @@ def run(img_path=def_img_path, model=def_model, weights=def_weights):
     img_res = img_org.copy()
     draw_boxes(img_res, boxes, classes)
 
-    cv2.imshow('yolo detection', img_res) #显示
-    cv2.waitKey(0) #延迟
-
     img_dir, img_name = os.path.split(img_path)
     save_name = img_name.replace('.', '_det.')
     save_path = 'results/'+save_name
     cv2.imwrite('results/'+save_name, img_res)
     print("Result saved in %s!" % save_path)
+
+    cv2.imshow('yolo detection', img_res) #显示
+    cv2.waitKey(0) #延迟
+
 
 if __name__ == '__main__':
     fire.Fire(run)
